@@ -2,6 +2,8 @@
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Pending from '../../components/Pending.astro';
+import ChatReplay from '../../components/ChatReplay.astro';
+import { render } from 'astro:content';
 import { localizedPath, useTranslations, defaultLocale } from '../../i18n';
 import { getProjects, projectSlug, type Project } from '../../lib/projects';
 import type { UiKey } from '../../i18n/en';
@@ -18,6 +20,9 @@ interface Props {
 const { project } = Astro.props;
 const data = project.data;
 const t = useTranslations(Astro.currentLocale);
+// Optional free-form Markdown below the front matter (e.g. code walkthrough).
+const { Content } = await render(project);
+const hasBody = Boolean(project.body?.trim());
 
 // Fixed order so every project page answers the same questions.
 const sections: { key: keyof typeof data; label: UiKey }[] = [
@@ -26,7 +31,6 @@ const sections: { key: keyof typeof data; label: UiKey }[] = [
   { key: 'method', label: 'projects.method' },
   { key: 'results', label: 'projects.results' },
   { key: 'limitations', label: 'projects.limitations' },
-  { key: 'architecture', label: 'projects.architecture' },
 ];
 ---
 
@@ -39,7 +43,7 @@ const sections: { key: keyof typeof data; label: UiKey }[] = [
       <h1>{data.title}</h1>
       <p class="lead">{data.summary}</p>
       <div class="actions">
-        {data.demoUrl && <a class="button" href={data.demoUrl}>{t('projects.demo')} ↗</a>}
+        {data.demoUrl && <a class="button" href={data.demoUrl}>{data.demoLabel ?? t('projects.demo')} ↗</a>}
         {
           data.repoUrl && data.repoIsPublic && (
             <a class="button button--ghost" href={data.repoUrl}>
@@ -49,10 +53,13 @@ const sections: { key: keyof typeof data; label: UiKey }[] = [
         }
         {data.repoUrl && !data.repoIsPublic && <span class="muted">{t('projects.codePrivate')}</span>}
       </div>
+      {data.demoNote && <p class="demo-note muted">{data.demoNote}</p>}
     </header>
 
+    {data.transcript && <ChatReplay {...data.transcript} title={data.title} />}
+
     {
-      data.image && (
+      data.image && !data.transcript && (
         <figure class="hero-figure">
           <img src={data.image.src} alt={data.image.alt} width="1200" height="550" />
           {data.image.credit && <figcaption>{data.image.credit}</figcaption>}
@@ -76,16 +83,80 @@ const sections: { key: keyof typeof data; label: UiKey }[] = [
       }
 
       <section>
+        <h2>{t('projects.architecture')}</h2>
+        {data.architecture ? <p>{data.architecture}</p> : <Pending />}
+      </section>
+    </div>
+
+    {
+      data.architectureImage && (
+        <figure class="diagram">
+          <img src={data.architectureImage.src} alt={data.architectureImage.alt} width="960" height="620" loading="lazy" />
+        </figure>
+      )
+    }
+
+    <div class="reading">
+      <section>
         <h2>{t('projects.technologies')}</h2>
         <ul class="tag-list">
           {data.technologies.map((tech) => <li class="tag">{tech}</li>)}
         </ul>
       </section>
+
+      {
+        hasBody && (
+          <div class="body">
+            <Content />
+          </div>
+        )
+      }
     </div>
   </article>
 </BaseLayout>
 
 <style>
+  .demo-note {
+    margin: 0.6rem 0 0;
+    font-size: 0.9rem;
+  }
+
+  .diagram {
+    margin: 1.25rem 0 0;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 0.5rem;
+    overflow-x: auto;
+  }
+
+  .diagram img {
+    width: 100%;
+    min-width: 40rem;
+  }
+
+  /* Markdown body: code blocks and tables. */
+  .body :global(pre) {
+    padding: 1rem;
+    border-radius: var(--radius);
+    overflow-x: auto;
+    font-size: 0.85rem;
+  }
+
+  .body :global(table) {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.93rem;
+  }
+
+  .body :global(th),
+  .body :global(td) {
+    text-align: left;
+    padding: 0.4rem 0.6rem;
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: top;
+  }
+
   .status {
     margin: 0 0 0.3rem;
     font-size: 0.8rem;

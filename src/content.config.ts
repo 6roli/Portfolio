@@ -31,6 +31,22 @@ const projects = defineCollection({
       })
       .optional(),
     demoUrl: z.url().optional(),
+    /** Text of the demo button, e.g. "Try Chatbot". Defaults to "Open demo". */
+    demoLabel: z.string().min(1).max(40).optional(),
+    /** Short note under the demo button, e.g. that a free server needs time to wake up. */
+    demoNote: z.string().optional(),
+    /**
+     * A real conversation recorded from the live demo, replayed at the top of the
+     * project page. Must be copied verbatim from the app, never written by hand.
+     */
+    transcript: z
+      .object({
+        caption: z.string().min(1),
+        messages: z.array(z.object({ from: z.enum(['user', 'bot']), text: z.string().min(1) })).min(2),
+      })
+      .optional(),
+    /** Block diagram shown in the Architecture section. */
+    architectureImage: z.object({ src: z.string().startsWith('/'), alt: z.string().min(1) }).optional(),
     repoUrl: z.url().optional(),
     repoIsPublic: z.boolean().default(true),
     /** True when Gabriel has not yet confirmed the text. Shown as a notice. */

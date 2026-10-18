@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 620" role="img" aria-labelledby="t d" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif">
+  <title id="t">Car rental chatbot architecture</title>
+  <desc id="d">The visitor's browser talks to a Flask web app on Render, which keeps one session per visitor with usage limits. A search workflow extracts criteria with a fast language model, then checks them and searches a SQLite database in Python. A conversation workflow routes messages with a supervisor to a recommendation agent, with optional weather search, or to a simulated booking agent. Language models run on Groq. GitHub pushes trigger tests and deployment on Render.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#55606c"/>
+    </marker>
+    <style>
+      .box { fill: #ffffff; stroke: #dedad2; stroke-width: 1.5; }
+      .llm { fill: #e3f0f3; stroke: #0b6782; stroke-width: 1.5; }
+      .ext { fill: #fbfaf7; stroke: #55606c; stroke-width: 1.5; stroke-dasharray: 6 4; }
+      .group { fill: none; stroke: #0b6782; stroke-width: 1; stroke-dasharray: 3 3; }
+      .h { font-size: 15px; font-weight: 700; fill: #1b2128; }
+      .s { font-size: 12.5px; fill: #55606c; }
+      .g { font-size: 13px; font-weight: 700; fill: #084f64; letter-spacing: 0.04em; }
+      .line { stroke: #55606c; stroke-width: 1.5; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect width="960" height="620" fill="#fbfaf7"/>
+
+  <!-- Row 1: browser → web app → sessions -->
+  <rect class="box" x="20" y="20" width="220" height="64" rx="10"/>
+  <text class="h" x="130" y="47" text-anchor="middle">Visitor's browser</text>
+  <text class="s" x="130" y="67" text-anchor="middle">chat page · HTML, CSS, JS</text>
+
+  <rect class="box" x="300" y="20" width="300" height="64" rx="10"/>
+  <text class="h" x="450" y="47" text-anchor="middle">Flask web app (Render, free)</text>
+  <text class="s" x="450" y="67" text-anchor="middle">/chat JSON API · gunicorn · security headers</text>
+
+  <rect class="box" x="660" y="20" width="280" height="64" rx="10"/>
+  <text class="h" x="800" y="47" text-anchor="middle">Session per visitor</text>
+  <text class="s" x="800" y="67" text-anchor="middle">20 msgs/hour each · 300/day in total</text>
+
+  <path class="line" d="M240,52 H296"/>
+  <path class="line" d="M600,52 H656"/>
+
+  <!-- Stage split -->
+  <path class="line" d="M450,84 V112 H235 V140"/>
+  <path class="line" d="M450,112 H715 V140"/>
+  <text class="s" x="300" y="106">1st: find cars</text>
+  <text class="s" x="560" y="106">then: talk about them</text>
+
+  <!-- Search workflow -->
+  <rect class="group" x="20" y="140" width="430" height="300" rx="12"/>
+  <text class="g" x="40" y="166">SEARCH WORKFLOW · LangGraph</text>
+
+  <rect class="llm" x="50" y="182" width="370" height="58" rx="10"/>
+  <text class="h" x="235" y="206" text-anchor="middle">1 · Extract criteria</text>
+  <text class="s" x="235" y="226" text-anchor="middle">LLM (fast) → city, dates, budget as structured data</text>
+
+  <rect class="box" x="50" y="268" width="370" height="58" rx="10"/>
+  <text class="h" x="235" y="292" text-anchor="middle">2 · Check criteria</text>
+  <text class="s" x="235" y="312" text-anchor="middle">Python → clear messages for missing or invalid data</text>
+
+  <rect class="box" x="50" y="354" width="370" height="58" rx="10"/>
+  <text class="h" x="235" y="378" text-anchor="middle">3 · Search cars</text>
+  <text class="s" x="235" y="398" text-anchor="middle">Python → parameterised SQL, cheapest first</text>
+
+  <path class="line" d="M235,240 V264"/>
+  <path class="line" d="M235,326 V350"/>
+
+  <!-- Conversation workflow -->
+  <rect class="group" x="490" y="140" width="450" height="300" rx="12"/>
+  <text class="g" x="510" y="166">CONVERSATION WORKFLOW · LangGraph</text>
+
+  <rect class="llm" x="580" y="182" width="270" height="58" rx="10"/>
+  <text class="h" x="715" y="206" text-anchor="middle">Supervisor</text>
+  <text class="s" x="715" y="226" text-anchor="middle">LLM (fast) → recommend or book?</text>
+
+  <rect class="llm" x="510" y="282" width="200" height="66" rx="10"/>
+  <text class="h" x="610" y="308" text-anchor="middle">Recommendation</text>
+  <text class="s" x="610" y="328" text-anchor="middle">LLM (main) · only listed cars</text>
+
+  <rect class="llm" x="730" y="282" width="190" height="66" rx="10"/>
+  <text class="h" x="825" y="308" text-anchor="middle">Booking</text>
+  <text class="s" x="825" y="328" text-anchor="middle">LLM (main) · simulated</text>
+
+  <rect class="ext" x="510" y="372" width="200" height="50" rx="10"/>
+  <text class="h" x="610" y="394" text-anchor="middle">Weather search</text>
+  <text class="s" x="610" y="412" text-anchor="middle">Tavily · optional tool</text>
+
+  <path class="line" d="M680,240 L630,278"/>
+  <path class="line" d="M750,240 L800,278"/>
+  <path class="line" d="M610,348 V368"/>
+
+  <!-- Data and models -->
+  <rect class="ext" x="50" y="476" width="370" height="58" rx="10"/>
+  <text class="h" x="235" y="500" text-anchor="middle">SQLite in memory</text>
+  <text class="s" x="235" y="520" text-anchor="middle">fictional fleet, regenerated daily from today</text>
+  <path class="line" d="M235,412 V472"/>
+
+  <rect class="ext" x="510" y="476" width="430" height="58" rx="10"/>
+  <text class="h" x="725" y="500" text-anchor="middle">Groq API (free tier)</text>
+  <text class="s" x="725" y="520" text-anchor="middle">gpt-oss-120b (main) · gpt-oss-20b (fast) · chosen automatically</text>
+  <path class="line" d="M715,440 V472"/>
+  <path class="line" d="M420,211 C470,211 470,505 506,505"/>
+
+  <!-- Delivery -->
+  <text class="s" x="480" y="580" text-anchor="middle">git push → GitHub → Render runs pytest → if all pass, the new version goes live</text>
+  <text class="s" x="480" y="600" text-anchor="middle">GROQ_API_KEY lives only in Render's secret settings</text>
+</svg>
