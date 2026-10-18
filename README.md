@@ -1,13 +1,13 @@
 # Portfolio — Gabriel Olius
 
 Personal website: profile, CV, projects and links to independent applications such as
-[Horizonte](https://github.com/6roli/Horizonte). A static site built with Astro and published on Cloudflare Pages.
+[Horizonte](https://github.com/6roli/Horizonte). A static site built with Astro and published on Cloudflare.
 
 | | |
 |---|---|
-| Live site | https://gabriel-olius.pages.dev *(final address confirmed after the first deployment)* |
+| Live site | https://portfolio.gabriel-olius.workers.dev *(final address confirmed after the first deployment)* |
 | Language | English (structure ready for Spanish) |
-| Hosting | Cloudflare Pages, Free plan, connected to this repository |
+| Hosting | Cloudflare (Workers static assets), Free plan, connected to this repository |
 | Monthly cost | €0 |
 
 ## Technologies: what, where, why
@@ -18,7 +18,7 @@ Personal website: profile, CV, projects and links to independent applications su
 | **CSS** (`src/styles/global.css`) | Browser | All styling, with a handful of variables for colours and fonts. No CSS framework. |
 | **TypeScript** | Build time only | Type-checks configuration and the project schema, so a missing field fails the build instead of the live site. |
 | **Node.js + npm** | Your computer and Cloudflare's build server | Installs Astro and runs the build and checks. |
-| **Cloudflare Pages** | Cloudflare | Builds the site on every push to GitHub and serves it over HTTPS from its CDN. |
+| **Cloudflare** (Workers static assets) | Cloudflare | Builds the site on every push to GitHub and serves it over HTTPS from its CDN. |
 
 Everything a visitor receives is static HTML, CSS and images: no server, database, cookies or tracking.
 

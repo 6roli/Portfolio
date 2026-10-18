@@ -85,7 +85,7 @@ export interface AppLink {
 export const apps: AppLink[] = [
   {
     name: 'Horizonte',
-    url: 'https://horizonte.pages.dev',
+    url: 'https://horizonte.gabriel-olius.workers.dev',
     repoUrl: 'https://github.com/6roli/Horizonte',
     repoIsPublic: false,
     projectSlug: 'horizonte',

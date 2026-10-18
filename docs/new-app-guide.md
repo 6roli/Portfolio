@@ -1,7 +1,7 @@
 # Adding a new app (own repository, own deployment)
 
 Each app — ocean, coast, extreme events… — lives in its own repository with its own dependencies, checks and
-Cloudflare Pages project. The portfolio only links to it. Horizonte is the reference example.
+Cloudflare project. The portfolio only links to it. Horizonte is the reference example.
 
 ## 1. Repository
 
@@ -41,20 +41,23 @@ Add an `npm run verify` script that runs the type check, tests and build. Cloudf
 - Validate data before showing it, and show source, time, time zone, age and limitations.
 - Label every layer as **observation**, **estimate** or **forecast**. Experimental detections are never warnings.
 
-## 4. Publish on Cloudflare Pages
+## 4. Publish on Cloudflare
 
-1. Push the code: `git add -A && git commit -m "…" && git push -u origin main`.
-2. Cloudflare dashboard → **Workers & Pages → Create → Pages → Connect to Git**.
-3. Choose the repository (if it is not listed: *Configure GitHub* and grant the Cloudflare app access to it).
-4. Settings: framework preset (*None* for Vite, *Astro* for Astro), build command `npm run verify`,
-   output directory `dist`, production branch `main`.
-5. **Save and Deploy.** The address is `https://<project>.pages.dev` (Cloudflare adds a suffix if the name is taken).
+1. Add a `wrangler.jsonc` (copy Horizonte's) and set `"name"` to the app name. It declares the site as static files
+   in `dist/` — without it, Cloudflare tries to set up a server adapter and the deployment fails.
+2. Make `npm run build` run the checks (type check, tests) before building, as in Horizonte.
+3. Push the code: `git add -A && git commit -m "…" && git push -u origin main`.
+4. Cloudflare dashboard → **Workers & Pages → Create → Import a repository** → choose the repository.
+   If it is not listed, grant the Cloudflare GitHub app access to it.
+5. Project name: **exactly the `name` in `wrangler.jsonc`**. Keep the default commands
+   (`npm run build`, `npx wrangler deploy`). Deploy.
+6. The address is `https://<name>.gabriel-olius.workers.dev` (*project → Domains*).
 
-From then on every push to `main` deploys, and other branches get preview URLs.
+From then on every push to `main` deploys; other branches get preview versions.
 
 ## 5. Domain (when there is one)
 
-Add `<app>.example.com` as a custom domain of the new Pages project (see `docs/domain.md`).
+Add `<app>.example.com` as a custom domain of the new Cloudflare project (see `docs/domain.md`).
 
 ## 6. Link it from the portfolio
 

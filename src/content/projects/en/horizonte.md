@@ -5,12 +5,12 @@ status: live
 featured: true
 order: 1
 areas: [earth-observation, software, architecture]
-technologies: [TypeScript, Vite, Leaflet, OGC WMS, Vitest, Cloudflare Pages]
+technologies: [TypeScript, Vite, Leaflet, OGC WMS, Vitest, Cloudflare]
 image:
   src: /images/projects/horizonte.jpg
   alt: Meteosat GeoColour image of the Iberian Peninsula and the western Mediterranean at 12:00 UTC on 18 October 2026, with a band of cloud over eastern Spain.
   credit: Contains modified EUMETSAT Meteosat data 2026 (MTG-I1 FCI, GeoColour RGB, 18 Oct 2026 12:00 UTC).
-demoUrl: https://horizonte.pages.dev
+demoUrl: https://horizonte.gabriel-olius.workers.dev
 repoUrl: https://github.com/6roli/Horizonte
 repoIsPublic: false
 needsReview: false
@@ -36,7 +36,7 @@ limitations: >-
   some 15–30 minutes after the scan, so nothing is real time. Horizonte does not issue warnings, forecasts or
   detections; for official warnings use AEMET and Meteoalarm.
 architecture: >-
-  Static site (Vite + TypeScript + Leaflet) on Cloudflare Pages, built from its own GitHub repository on every
+  Static site (Vite + TypeScript + Leaflet) served by Cloudflare, built from its own GitHub repository on every
   push. The browser reads EUMETView's WMS time dimension and loads GetMap images directly. Interface, data access
   and validation are separate modules with unit tests. No server, no database, no scheduled jobs.
 ---

@@ -2,46 +2,32 @@
 
 There is no domain yet. Both sites work on Cloudflare's free addresses:
 
-- Portfolio: `https://gabriel-olius.pages.dev`
-- Horizonte: `https://horizonte.pages.dev`
+- Portfolio: `https://portfolio.gabriel-olius.workers.dev`
+- Horizonte: `https://horizonte.gabriel-olius.workers.dev`
 
-The target layout once a domain (here `example.com`) is bought:
+Target layout once a domain (here `example.com`) is bought:
 
-| Address | Project |
+| Address | Cloudflare project (Worker) |
 |---|---|
-| `example.com` and `www.example.com` | Cloudflare Pages project `gabriel-olius` |
-| `horizonte.example.com` | Cloudflare Pages project `horizonte` |
-| `<next-app>.example.com` | that app's own Pages project |
+| `example.com` and `www.example.com` | `portfolio` |
+| `horizonte.example.com` | `horizonte` |
+| `<next-app>.example.com` | that app's own project |
 
-The domain itself is the only part that costs money (typically €10–15/year for a `.com`, depending on the
-registrar; Cloudflare Registrar sells at cost). Buying one needs your approval.
+The domain is the only part that costs money (typically €10–15/year for a `.com`; Cloudflare Registrar sells at
+cost). Buying one needs your approval.
 
-## Option A — DNS managed by Cloudflare (recommended, required for the apex domain)
+## Steps
 
-1. Cloudflare dashboard → **Add a domain** → choose the **Free** plan.
-2. At your registrar, replace the nameservers with the two Cloudflare shows. Wait until the zone is *Active*.
-3. **Workers & Pages → gabriel-olius → Custom domains → Set up a custom domain** → `example.com`.
-   Cloudflare creates the DNS record and the HTTPS certificate automatically. Repeat for `www.example.com`.
-4. **Workers & Pages → horizonte → Custom domains** → `horizonte.example.com`.
+Custom domains on Workers require the domain's DNS to be managed by Cloudflare (free plan).
 
-Records Cloudflare creates (for reference — do not add them by hand before step 3,
-or the domain will not validate):
+1. If the domain is bought elsewhere: Cloudflare dashboard → **Add a domain** → **Free** plan → at your registrar,
+   replace the nameservers with the two Cloudflare shows. Wait until the zone is *Active*.
+   (Bought at Cloudflare Registrar: already done.)
+2. **Workers & Pages → portfolio → Domains → Add Domain** → `example.com`. Repeat for `www.example.com`.
+   Cloudflare creates the DNS records and the HTTPS certificate; do not add records by hand.
+3. **Workers & Pages → horizonte → Domains → Add Domain** → `horizonte.example.com`.
 
-| Type | Name | Target | Proxy |
-|---|---|---|---|
-| CNAME | `@` (apex, flattened) | `gabriel-olius.pages.dev` | Proxied |
-| CNAME | `www` | `gabriel-olius.pages.dev` | Proxied |
-| CNAME | `horizonte` | `horizonte.pages.dev` | Proxied |
-
-Optional: a redirect rule from `www.example.com` to `example.com` (Rules → Redirect Rules, free).
-
-## Option B — DNS stays at another provider (subdomains only)
-
-Cloudflare Pages can only use the apex domain if the zone is on Cloudflare. Subdomains work anywhere:
-
-1. In the Pages project, add the custom domain `horizonte.example.com` first.
-2. At your DNS provider, add `CNAME horizonte → horizonte.pages.dev`.
-3. Wait for validation; HTTPS is issued automatically.
+Optional: redirect `www.example.com` to `example.com` (*Rules → Redirect Rules*, free).
 
 ## After the domain works — update the code
 
@@ -52,4 +38,5 @@ Cloudflare Pages can only use the apex domain if the zone is on Cloudflare. Subd
 | Portfolio | `src/content/projects/en/horizonte.md` | `demoUrl` |
 | Horizonte | `src/config/app.ts` | `PORTFOLIO_URL = 'https://example.com'` |
 
-Push both repositories; Cloudflare redeploys them. The `*.pages.dev` addresses keep working, which is harmless.
+Push both repositories; Cloudflare redeploys them. The `*.workers.dev` addresses can then be switched off in
+*Domains → Worker URL* if you want a single public address.

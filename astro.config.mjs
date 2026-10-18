@@ -3,7 +3,7 @@ import { defineConfig } from 'astro/config';
 
 // Public address, used for canonical links and social previews.
 // Change it here when a custom domain is connected (or set SITE_URL to override).
-const site = process.env.SITE_URL ?? 'https://gabriel-olius.pages.dev';
+const site = process.env.SITE_URL ?? 'https://portfolio.gabriel-olius.workers.dev';
 
 export default defineConfig({
   site,
