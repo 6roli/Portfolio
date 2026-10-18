@@ -58,27 +58,29 @@ npm run dev     # http://localhost:4321 — reloads on save
 | `npm run build` | Static build into `dist/` |
 | `npm run preview` | Serve `dist/` locally |
 | `npm run check:links` | Every internal link and asset in `dist/` must exist |
-| `npm run verify` | check + build + link check — the same command Cloudflare runs |
+| `npm run verify` | check + build + link check — same as `npm run build` |
 | `node scripts/check-links.mjs dist --external` | Also test external links (manual, needs internet) |
 
 ## Publish
 
-Cloudflare Pages is connected to this GitHub repository (Git integration). No GitHub Actions or tokens are involved.
+Cloudflare (Workers static assets, Free plan) is connected to this GitHub repository through its Git integration. No GitHub Actions or tokens are involved.
 
-- Push to `main` → Cloudflare runs `npm run verify`; if every check passes, the new version goes live.
+- Push to `main` → Cloudflare runs `npm run build` (all checks + build); if every check passes, the new version goes live.
 - Push to another branch or open a pull request → a preview URL, shown in GitHub next to the commit.
 - If a check fails, nothing is deployed and the previous version stays online. The build log is in the
   Cloudflare dashboard (*Workers & Pages → project → Deployments*).
 
-Cloudflare Pages project settings:
+Cloudflare project settings (*Workers & Pages → project → Settings → Build*):
 
 | Setting | Value |
 |---|---|
-| Framework preset | Astro |
-| Build command | `npm run verify` |
-| Build output directory | `dist` |
+| Build command | `npm run build` (runs every check before building) |
+| Deploy command | `npx wrangler deploy` |
+| Non-production branch deploy command | `npx wrangler versions upload` (preview URLs) |
 | Production branch | `main` |
-| Node.js version | from `.nvmrc` (24) |
+
+`wrangler.jsonc` tells Cloudflare the site is **only static files** in `dist/`: no Worker code and no server.
+Static requests are free and unlimited. Do not let Wrangler or Astro add the `@astrojs/cloudflare` adapter; it is not needed.
 
 `public/_headers` adds security headers (Content-Security-Policy etc.) and long caching for built assets.
 
