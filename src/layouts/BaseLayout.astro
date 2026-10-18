@@ -1,0 +1,198 @@
+---
+import '../styles/global.css';
+import { profile, githubUrl } from '../config/site';
+import { localizedPath, useTranslations } from '../i18n';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Absolute path of a social preview image inside /public. */
+  image?: string;
+}
+
+const locale = Astro.currentLocale ?? 'en';
+const t = useTranslations(locale);
+const { title, description = t('site.description'), image } = Astro.props;
+
+const pageTitle = title ? `${title} · ${t('site.title')}` : t('site.title');
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = image ? new URL(image, Astro.site).href : undefined;
+
+const navItems = [
+  { href: localizedPath('/', locale), label: t('nav.home') },
+  { href: localizedPath('/projects/', locale), label: t('nav.projects') },
+  { href: localizedPath('/about/', locale), label: t('nav.about') },
+  { href: localizedPath('/cv/', locale), label: t('nav.cv') },
+  { href: localizedPath('/contact/', locale), label: t('nav.contact') },
+];
+
+const current = Astro.url.pathname.replace(/\/$/, '') || '/';
+const isCurrent = (href: string) => {
+  const target = href.replace(/\/$/, '') || '/';
+  return target === '/' ? current === '/' : current.startsWith(target);
+};
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#fbfaf7" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+  </head>
+  <body>
+    <a class="skip-link" href="#main">{t('nav.skip')}</a>
+
+    <header class="site-header">
+      <div class="container site-header__inner">
+        <a class="brand" href={localizedPath('/', locale)}>
+          <span class="brand__mark" aria-hidden="true"></span>
+          {profile.name}
+        </a>
+        <nav aria-label="Main">
+          <ul class="nav-list">
+            {
+              navItems.map((item) => (
+                <li>
+                  <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+                    {item.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <p class="first-version" role="note">
+      <span class="container">{t('banner.firstVersion')}</span>
+    </p>
+
+    <main id="main" class="container">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="container site-footer__inner">
+        <p>© {new Date().getFullYear()} {profile.name}</p>
+        <p class="muted">{t('footer.built')}</p>
+        <p><a href={`${githubUrl}/Portfolio`}>{t('footer.source')}</a></p>
+      </div>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .skip-link {
+    position: absolute;
+    left: 0.5rem;
+    top: -3rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--color-accent);
+    color: #fff;
+    border-radius: var(--radius);
+    z-index: 10;
+  }
+
+  .skip-link:focus {
+    top: 0.5rem;
+  }
+
+  .site-header {
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-surface);
+  }
+
+  .site-header__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1.5rem;
+    padding-block: 0.85rem;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  /* Small horizon mark shared in spirit with Horizonte's logo. */
+  .brand__mark {
+    width: 1.1rem;
+    height: 1.1rem;
+    border-radius: 50%;
+    background: linear-gradient(to bottom, var(--color-accent) 0 52%, var(--color-text) 52% 60%, #c9dde3 60%);
+  }
+
+  .nav-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .nav-list a {
+    color: var(--color-muted);
+    text-decoration: none;
+    padding: 0.3rem 0;
+    display: inline-block;
+  }
+
+  .nav-list a:hover,
+  .nav-list a[aria-current='page'] {
+    color: var(--color-accent-strong);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+  }
+
+  .first-version {
+    margin: 0;
+    background: var(--color-pending-bg);
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-pending-text);
+    font-size: 0.88rem;
+    padding-block: 0.4rem;
+  }
+
+  .first-version .container {
+    display: block;
+  }
+
+  main {
+    padding-block: 2.5rem 4rem;
+  }
+
+  .site-footer {
+    border-top: 1px solid var(--color-border);
+    font-size: 0.92rem;
+  }
+
+  .site-footer__inner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 2rem;
+    padding-block: 1.25rem;
+  }
+
+  .site-footer p {
+    margin: 0;
+  }
+</style>

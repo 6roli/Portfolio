@@ -1,0 +1,38 @@
+---
+/**
+ * Visible marker for information Gabriel has not provided yet.
+ * Used instead of placeholder text so nothing invented reaches the site.
+ */
+import { useTranslations } from '../i18n';
+
+interface Props {
+  /** What is missing, e.g. "Education history". */
+  what?: string;
+  inline?: boolean;
+}
+
+const { what, inline = false } = Astro.props;
+const t = useTranslations(Astro.currentLocale);
+const Tag = inline ? 'span' : 'p';
+---
+
+<Tag class:list={['pending', { 'pending--inline': inline }]}>
+  <strong>{t('pending.label')}:</strong>{' '}
+  {what ? `${what} — ` : ''}{t('pending.default')}
+</Tag>
+
+<style>
+  .pending {
+    border: 1px dashed var(--color-pending-border);
+    background: var(--color-pending-bg);
+    color: var(--color-pending-text);
+    padding: 0.6rem 0.85rem;
+    border-radius: var(--radius);
+    font-size: 0.95rem;
+  }
+
+  .pending--inline {
+    display: inline-block;
+    padding: 0.1rem 0.5rem;
+  }
+</style>

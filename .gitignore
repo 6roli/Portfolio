@@ -1,0 +1,21 @@
+# Build output and caches
+dist/
+.astro/
+node_modules/
+.wrangler/
+
+# Secrets and local environment — never commit these
+.env
+.env.*
+!.env.example
+.dev.vars
+
+# Personal documents are added deliberately, not by accident.
+# Remove the matching line once you want to publish your CV.
+public/cv/*.pdf
+public/cv/*.docx
+
+# Editor / OS noise
+.DS_Store
+Thumbs.db
+*.log

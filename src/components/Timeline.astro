@@ -1,0 +1,48 @@
+---
+import Pending from './Pending.astro';
+import type { TimelineEntry } from '../config/about';
+
+interface Props {
+  entries: TimelineEntry[];
+  /** Name of the missing information, shown when there are no entries. */
+  pendingLabel: string;
+}
+
+const { entries, pendingLabel } = Astro.props;
+---
+
+{
+  entries.length === 0 ? (
+    <Pending what={pendingLabel} />
+  ) : (
+    <ol class="timeline">
+      {entries.map((entry) => (
+        <li>
+          <h3>{entry.title}</h3>
+          <p class="muted">
+            {entry.organisation} · {entry.period}
+            {entry.location && ` · ${entry.location}`}
+          </p>
+          {entry.details && <p>{entry.details}</p>}
+        </li>
+      ))}
+    </ol>
+  )
+}
+
+<style>
+  .timeline {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border-left: 2px solid var(--color-border);
+  }
+
+  .timeline li {
+    padding: 0 0 1.25rem 1rem;
+  }
+
+  .timeline p {
+    margin: 0 0 0.25rem;
+  }
+</style>

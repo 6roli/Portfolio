@@ -1,0 +1,100 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import Pending from '../components/Pending.astro';
+import { apps, focusAreas, profile } from '../config/site';
+import { localizedPath, useTranslations } from '../i18n';
+import { getProjects } from '../lib/projects';
+
+const locale = Astro.currentLocale ?? 'en';
+const t = useTranslations(locale);
+const projects = await getProjects(locale);
+const featured = projects.filter((project) => project.data.featured);
+---
+
+<BaseLayout image="/images/projects/horizonte.jpg">
+  <section class="hero">
+    <h1>{profile.name}</h1>
+    {profile.headline ? <p class="hero__headline">{profile.headline}</p> : <Pending what="Professional headline" />}
+    {profile.intro ? <p class="lead">{profile.intro}</p> : <Pending what="Short introduction" />}
+  </section>
+
+  <section aria-labelledby="areas-title">
+    <h2 id="areas-title">{t('home.areas')}</h2>
+    <ul class="areas">
+      {
+        focusAreas.map((area) => (
+          <li class="area">
+            <h3>{area.title}</h3>
+            <p class="muted">{area.summary}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section aria-labelledby="featured-title">
+    <h2 id="featured-title">{t('home.featured')}</h2>
+    <div class="grid">
+      {featured.map((project) => <ProjectCard project={project} />)}
+    </div>
+    <p class="more">
+      <a class="button button--ghost" href={localizedPath('/projects/', locale)}>{t('home.allProjects')} →</a>
+    </p>
+  </section>
+
+  {
+    apps.length > 0 && (
+      <section aria-labelledby="apps-title">
+        <h2 id="apps-title">{t('home.apps')}</h2>
+        <ul class="apps">
+          {apps.map((app) => (
+            <li>
+              <a href={app.url}>{app.name}</a>
+              <span class="muted"> — {new URL(app.url).host}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+</BaseLayout>
+
+<style>
+  .hero {
+    padding-block: 1rem 0.5rem;
+  }
+
+  .hero__headline {
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: var(--color-accent-strong);
+  }
+
+  .areas {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  }
+
+  .area {
+    border-left: 3px solid var(--color-accent);
+    padding: 0.25rem 0 0.25rem 0.9rem;
+  }
+
+  .area p {
+    margin: 0;
+    font-size: 0.97rem;
+  }
+
+  .more {
+    margin-top: 1.5rem;
+  }
+
+  .apps {
+    padding-left: 1.2rem;
+  }
+</style>

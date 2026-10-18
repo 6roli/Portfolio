@@ -1,0 +1,30 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Pending from '../components/Pending.astro';
+import Timeline from '../components/Timeline.astro';
+import { about } from '../config/about';
+import { focusAreas } from '../config/site';
+import { useTranslations } from '../i18n';
+
+const t = useTranslations(Astro.currentLocale);
+---
+
+<BaseLayout title={t('about.title')}>
+  <div class="reading">
+    <h1>{t('about.title')}</h1>
+    {about.bio.length > 0 ? about.bio.map((paragraph) => <p class="lead">{paragraph}</p>) : <Pending what="Biography" />}
+
+    <h2>{t('about.education')}</h2>
+    <Timeline entries={about.education} pendingLabel="Education" />
+
+    <h2>{t('about.experience')}</h2>
+    <Timeline entries={about.experience} pendingLabel="Professional experience" />
+
+    <h2>{t('about.interests')}</h2>
+    <ul>
+      {focusAreas.map((area) => <li>{area.title}</li>)}
+      {about.interests.map((interest) => <li>{interest}</li>)}
+    </ul>
+    {about.interests.length === 0 && <Pending what="Personal interests beyond the focus areas" />}
+  </div>
+</BaseLayout>

@@ -1,0 +1,18 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { useTranslations } from '../../i18n';
+import { getProjects } from '../../lib/projects';
+
+const locale = Astro.currentLocale ?? 'en';
+const t = useTranslations(locale);
+const projects = await getProjects(locale);
+---
+
+<BaseLayout title={t('projects.title')}>
+  <h1>{t('projects.title')}</h1>
+  <p class="lead">{t('projects.intro')}</p>
+  <div class="grid">
+    {projects.map((project) => <ProjectCard project={project} />)}
+  </div>
+</BaseLayout>

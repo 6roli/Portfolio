@@ -1,0 +1,73 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Pending from '../components/Pending.astro';
+import Timeline from '../components/Timeline.astro';
+import { about } from '../config/about';
+import { profile } from '../config/site';
+import { localizedPath, useTranslations } from '../i18n';
+import { getProjects, projectSlug } from '../lib/projects';
+
+const locale = Astro.currentLocale ?? 'en';
+const t = useTranslations(locale);
+const projects = await getProjects(locale);
+
+// Technologies come from real projects only: evidence, not self-assessment.
+const technologies = [...new Set(projects.flatMap((project) => project.data.technologies))].sort((a, b) =>
+  a.localeCompare(b),
+);
+---
+
+<BaseLayout title={t('cv.title')}>
+  <div class="reading">
+    <h1>{t('cv.title')}</h1>
+    <p class="muted">{profile.name}{profile.location && ` · ${profile.location}`}</p>
+
+    {
+      profile.cvFile ? (
+        <p>
+          <a class="button" href={profile.cvFile} download>
+            {t('cv.download')}
+          </a>
+        </p>
+      ) : (
+        <Pending what={t('cv.noFile')} />
+      )
+    }
+
+    <h2>{t('about.education')}</h2>
+    <Timeline entries={about.education} pendingLabel="Education" />
+
+    <h2>{t('about.experience')}</h2>
+    <Timeline entries={about.experience} pendingLabel="Professional experience" />
+
+    <h2>{t('projects.title')}</h2>
+    <ul>
+      {
+        projects.map((project) => (
+          <li>
+            <a href={localizedPath(`/projects/${projectSlug(project)}/`, locale)}>{project.data.title}</a>
+            <span class="muted"> — {project.data.summary}</span>
+          </li>
+        ))
+      }
+    </ul>
+
+    <h2>Technologies used in these projects</h2>
+    <ul class="tag-list">
+      {technologies.map((tech) => <li class="tag">{tech}</li>)}
+    </ul>
+
+    {
+      about.languages.length > 0 && (
+        <>
+          <h2>Languages</h2>
+          <ul>
+            {about.languages.map((language) => (
+              <li>{language}</li>
+            ))}
+          </ul>
+        </>
+      )
+    }
+  </div>
+</BaseLayout>

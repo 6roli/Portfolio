@@ -1,0 +1,71 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Pending from '../components/Pending.astro';
+import { githubUrl, profile } from '../config/site';
+import { useTranslations } from '../i18n';
+
+const t = useTranslations(Astro.currentLocale);
+---
+
+<BaseLayout title={t('contact.title')}>
+  <div class="reading">
+    <h1>{t('contact.title')}</h1>
+    <p class="lead">{t('contact.intro')}</p>
+
+    <dl class="contact-list">
+      <dt>{t('contact.email')}</dt>
+      <dd>
+        {
+          profile.email ? (
+            <a href={`mailto:${profile.email}`}>{profile.email}</a>
+          ) : (
+            <Pending what="Public contact email" inline />
+          )
+        }
+      </dd>
+
+      <dt>{t('contact.github')}</dt>
+      <dd><a href={githubUrl}>github.com/{profile.githubUser}</a></dd>
+
+      <dt>{t('contact.linkedin')}</dt>
+      <dd>
+        {
+          profile.linkedinUrl ? (
+            <a href={profile.linkedinUrl}>{profile.linkedinUrl.replace(/^https?:\/\/(www\.)?/, '')}</a>
+          ) : (
+            <Pending what="LinkedIn profile" inline />
+          )
+        }
+      </dd>
+
+      {
+        profile.otherLinks.map((link) => (
+          <>
+            <dt>{link.label}</dt>
+            <dd>
+              <a href={link.url}>{link.url}</a>
+            </dd>
+          </>
+        ))
+      }
+    </dl>
+  </div>
+</BaseLayout>
+
+<style>
+  .contact-list {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.75rem 1.5rem;
+    align-items: baseline;
+  }
+
+  dt {
+    font-weight: 600;
+  }
+
+  dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+</style>
