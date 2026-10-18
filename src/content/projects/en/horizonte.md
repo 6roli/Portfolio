@@ -5,7 +5,7 @@ status: live
 featured: true
 order: 1
 areas: [earth-observation, software, architecture]
-technologies: [TypeScript, Vite, Leaflet, OGC WMS, GitHub Actions, Cloudflare Pages]
+technologies: [TypeScript, Vite, Leaflet, OGC WMS, Vitest, Cloudflare Pages]
 image:
   src: /images/projects/horizonte.jpg
   alt: Meteosat GeoColour image of the Iberian Peninsula and the western Mediterranean at 12:00 UTC on 18 October 2026, with a band of cloud over eastern Spain.
@@ -24,19 +24,19 @@ data: >-
   These visualisations are EUMETSAT "Core" products, free to reuse under CC BY 4.0 with attribution. They are
   coloured images for viewing, not the original numerical data needed for scientific analysis.
 method: >-
-  A scheduled GitHub Actions job asks the WMS which observation times exist, downloads a small crop of the latest
-  frames for the region, validates them and writes a manifest with observation times and provenance. The site is
-  rebuilt with those files and deployed as static content, so visitors never trigger requests to EUMETSAT or any
-  computation. When live data cannot be fetched, the app shows a clearly labelled historical sample instead.
+  When the page opens, the browser asks EUMETView which observation times exist for each layer, picks the last
+  six hours of times common to both layers and loads the corresponding crops directly from EUMETSAT, a few at a
+  time. Every frame shows its observation time in UTC and Spanish time, and the data age. If EUMETView cannot be
+  reached, the app shows a small, clearly labelled historical sample bundled with it.
 results: >-
-  A public, static web app that plays the latest sequence of observations, states the source, product, observation
-  time (UTC and local), last update and data age, and warns when data is stale or missing.
+  A public, static web app that plays the latest six hours of observations, states the source, product, observation
+  time (UTC and local) and data age, and warns when data is stale, missing or a historical sample.
 limitations: >-
-  Images are reprojected, compressed visualisations, not calibrated measurements. Updates run hourly, so the newest
-  frame can be up to about an hour and a half old. Horizonte does not issue warnings, forecasts or detections; for
-  official warnings use AEMET and Meteoalarm.
+  Images are reprojected, compressed visualisations, not calibrated measurements. EUMETView publishes each image
+  some 15–30 minutes after the scan, so nothing is real time. Horizonte does not issue warnings, forecasts or
+  detections; for official warnings use AEMET and Meteoalarm.
 architecture: >-
-  Hourly GitHub Actions job → EUMETView WMS (GetCapabilities + GetMap crops) → JSON manifest and JPEG frames →
-  Vite static build → Cloudflare Pages. The interface, the data access layer and the processing script are separate
-  modules. No server, no database.
+  Static site (Vite + TypeScript + Leaflet) on Cloudflare Pages, built from its own GitHub repository on every
+  push. The browser reads EUMETView's WMS time dimension and loads GetMap images directly. Interface, data access
+  and validation are separate modules with unit tests. No server, no database, no scheduled jobs.
 ---

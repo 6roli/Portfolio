@@ -1,10 +1,9 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 
-// The public URL is injected at build time so the same code works on the
-// provider address (*.pages.dev) today and on a custom domain later.
-// Set SITE_URL in the deployment workflow; the fallback is only for local builds.
-const site = process.env.SITE_URL ?? 'http://localhost:4321';
+// Public address, used for canonical links and social previews.
+// Change it here when a custom domain is connected (or set SITE_URL to override).
+const site = process.env.SITE_URL ?? 'https://gabriel-olius.pages.dev';
 
 export default defineConfig({
   site,

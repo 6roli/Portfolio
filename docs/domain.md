@@ -47,9 +47,9 @@ Cloudflare Pages can only use the apex domain if the zone is on Cloudflare. Subd
 
 | Repository | File | Change |
 |---|---|---|
-| Portfolio | `.github/workflows/ci-deploy.yml` | `SITE_URL: https://example.com` |
+| Portfolio | `astro.config.mjs` | `site` fallback → `'https://example.com'` |
 | Portfolio | `src/config/site.ts` | Horizonte `url: 'https://horizonte.example.com'` |
 | Portfolio | `src/content/projects/en/horizonte.md` | `demoUrl` |
 | Horizonte | `src/config/app.ts` | `PORTFOLIO_URL = 'https://example.com'` |
 
-The `*.pages.dev` addresses keep working; that is harmless.
+Push both repositories; Cloudflare redeploys them. The `*.pages.dev` addresses keep working, which is harmless.
