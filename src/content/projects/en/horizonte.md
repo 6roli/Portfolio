@@ -11,7 +11,7 @@ image:
   alt: Meteosat GeoColour image of the Iberian Peninsula and the western Mediterranean at 12:00 UTC on 18 October 2026, with a band of cloud over eastern Spain.
   credit: Contains modified EUMETSAT Meteosat data 2026 (MTG-I1 FCI, GeoColour RGB, 18 Oct 2026 12:00 UTC).
 demoUrl: https://horizonte.pages.dev
-repoUrl: https://github.com/6roli/horizonte
+repoUrl: https://github.com/6roli/Horizonte
 repoIsPublic: false
 needsReview: false
 problem: >-

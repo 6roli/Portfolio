@@ -1,7 +1,7 @@
 # Portfolio — Gabriel Olius
 
 Personal website: profile, CV, projects and links to independent applications such as
-[Horizonte](https://github.com/6roli/horizonte). A static site built with Astro and published on Cloudflare Pages.
+[Horizonte](https://github.com/6roli/Horizonte). A static site built with Astro and published on Cloudflare Pages.
 
 | | |
 |---|---|

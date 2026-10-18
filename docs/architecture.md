@@ -7,7 +7,7 @@ project. The portfolio only links to the apps; nothing is shared at build time.
 flowchart LR
   subgraph GitHub
     P[6roli/Portfolio<br/>public]
-    H[6roli/horizonte<br/>private]
+    H[6roli/Horizonte]
   end
 
   subgraph CF[Cloudflare Pages - Free plan]
