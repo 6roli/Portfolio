@@ -5,6 +5,7 @@ status: live
 featured: true
 order: 10
 areas: [ml, software, architecture]
+theme: ember
 technologies: [Python, LangGraph, LangChain, Groq API, SQLite, Flask, pytest, Render]
 image:
   src: /images/projects/car-rental-chatbot.jpg

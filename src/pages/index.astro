@@ -2,38 +2,69 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import Pending from '../components/Pending.astro';
+import LiquidBands from '../components/LiquidBands.astro';
 import { apps, focusAreas, profile } from '../config/site';
 import { localizedPath, useTranslations } from '../i18n';
-import { getProjects } from '../lib/projects';
+import { getProjects, projectSlug } from '../lib/projects';
 
 const locale = Astro.currentLocale ?? 'en';
 const t = useTranslations(locale);
 const projects = await getProjects(locale);
 const featured = projects.filter((project) => project.data.featured);
+const live = projects.filter((project) => project.data.status === 'live');
+const latest = live[0];
 ---
 
 <BaseLayout image="/images/projects/horizonte.jpg">
-  <section class="hero">
-    <h1>{profile.name}</h1>
-    {profile.headline ? <p class="hero__headline">{profile.headline}</p> : <Pending what="Professional headline" />}
-    {profile.intro ? <p class="lead">{profile.intro}</p> : <Pending what="Short introduction" />}
+  <section class="hero" slot="hero">
+    <div class="container hero__inner">
+      {
+        latest && (
+          <a class="badge" href={localizedPath(`/projects/${projectSlug(latest)}/`, locale)}>
+            <span class="badge__pill">{t('projects.status.live')}</span>
+            <span>{latest.data.title}</span>
+            <span aria-hidden="true">→</span>
+          </a>
+        )
+      }
+      <h1 class="hero__title">
+        {profile.name}
+        <span class="fade-text">{t('home.heroLine')}</span>
+      </h1>
+      {profile.headline ? <p class="hero__headline">{profile.headline}</p> : <Pending what="Professional headline" />}
+      {profile.intro ? <p class="lead">{profile.intro}</p> : <Pending what="Short introduction" />}
+      <div class="hero__footer">
+        <div class="hero__actions">
+          <a class="button" href={localizedPath('/projects/', locale)}>{t('home.allProjects')}</a>
+          <a class="button button--ghost" href={localizedPath('/about/', locale)}>{t('nav.about')}</a>
+        </div>
+        <p class="hero__meta">
+          <strong>{live.length}</strong> {t('home.liveCount')}<br />
+          <strong>{projects.length}</strong> {t('home.projectCount')}
+        </p>
+      </div>
+    </div>
+    <LiquidBands id="home-liquid" />
   </section>
 
   <section aria-labelledby="areas-title">
+    <p class="eyebrow">{t('home.areasEyebrow')}</p>
     <h2 id="areas-title">{t('home.areas')}</h2>
-    <ul class="areas">
+    <ol class="areas">
       {
-        focusAreas.map((area) => (
-          <li class="area">
+        focusAreas.map((area, index) => (
+          <li class="area panel">
+            <span class="area__number">{String(index + 1).padStart(2, '0')}</span>
             <h3>{area.title}</h3>
             <p class="muted">{area.summary}</p>
           </li>
         ))
       }
-    </ul>
+    </ol>
   </section>
 
   <section aria-labelledby="featured-title">
+    <p class="eyebrow">{t('home.featuredEyebrow')}</p>
     <h2 id="featured-title">{t('home.featured')}</h2>
     <div class="grid">
       {featured.map((project) => <ProjectCard project={project} />)}
@@ -46,12 +77,19 @@ const featured = projects.filter((project) => project.data.featured);
   {
     apps.length > 0 && (
       <section aria-labelledby="apps-title">
+        <p class="eyebrow">{t('home.appsEyebrow')}</p>
         <h2 id="apps-title">{t('home.apps')}</h2>
         <ul class="apps">
           {apps.map((app) => (
             <li>
-              <a href={app.url}>{app.name}</a>
-              <span class="muted"> — {new URL(app.url).host}</span>
+              <a class="app panel" href={app.url}>
+                <span class="app__dot" aria-hidden="true" />
+                <span class="app__name">{app.name}</span>
+                <span class="muted">{new URL(app.url).host}</span>
+                <span class="app__arrow" aria-hidden="true">
+                  ↗
+                </span>
+              </a>
             </li>
           ))}
         </ul>
@@ -62,13 +100,94 @@ const featured = projects.filter((project) => project.data.featured);
 
 <style>
   .hero {
-    padding-block: 1rem 0.5rem;
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(55% 70% at 78% 85%, color-mix(in srgb, var(--accent-2) 22%, transparent), transparent 70%),
+      radial-gradient(40% 50% at 95% 40%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 70%),
+      var(--color-bg);
+  }
+
+  .hero__inner {
+    padding-block: clamp(3.5rem, 11vw, 8rem) clamp(2.5rem, 6vw, 4rem);
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.3rem 0.85rem 0.3rem 0.3rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--color-border-strong);
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.03);
+    color: var(--color-text);
+    font-size: 0.88rem;
+    text-decoration: none;
+  }
+
+  .badge:hover {
+    color: var(--color-text);
+    border-color: rgb(255 255 255 / 0.35);
+  }
+
+  .badge__pill {
+    padding: 0.15rem 0.65rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--accent-2) 35%, #000);
+    border: 1px solid color-mix(in srgb, var(--accent-2) 60%, transparent);
+  }
+
+  .hero__title {
+    font-size: clamp(2.5rem, 6.5vw, 4.4rem);
+    font-weight: 400;
+    letter-spacing: -0.035em;
+    line-height: 1.04;
+    max-width: 18ch;
+  }
+
+  .hero__title span {
+    display: block;
   }
 
   .hero__headline {
-    font-size: 1.35rem;
-    font-weight: 600;
-    color: var(--color-accent-strong);
+    font-size: 1.3rem;
+    color: var(--accent-text);
+  }
+
+  .hero__footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-top: 2.25rem;
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .hero__meta {
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: var(--color-muted);
+  }
+
+  .hero__meta strong {
+    color: var(--color-text);
+    font-weight: 500;
+  }
+
+  .eyebrow + h2 {
+    margin-top: 0;
+  }
+
+  section + section {
+    margin-top: 5.5rem;
   }
 
   .areas {
@@ -77,24 +196,80 @@ const featured = projects.filter((project) => project.data.featured);
     margin: 0;
     display: grid;
     gap: 1rem;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
   }
 
   .area {
-    border-left: 3px solid var(--color-accent);
-    padding: 0.25rem 0 0.25rem 0.9rem;
+    position: relative;
+    padding: 1.4rem 1.3rem 1.5rem;
+    overflow: hidden;
+  }
+
+  /* Thin glowing line on top of each card. */
+  .area::before {
+    content: '';
+    position: absolute;
+    inset: 0 1.3rem auto;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), var(--accent-2), transparent);
+    opacity: 0.8;
+  }
+
+  .area__number {
+    display: block;
+    margin-bottom: 2.2rem;
+    font-size: 0.85rem;
+    color: var(--color-faint);
+    font-variant-numeric: tabular-nums;
   }
 
   .area p {
     margin: 0;
-    font-size: 0.97rem;
+    font-size: 0.95rem;
   }
 
   .more {
-    margin-top: 1.5rem;
+    margin-top: 1.75rem;
   }
 
   .apps {
-    padding-left: 1.2rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .app {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 1rem;
+    padding: 1rem 1.3rem;
+    border-radius: var(--radius);
+    text-decoration: none;
+    color: var(--color-text);
+  }
+
+  .app:hover {
+    border-color: var(--color-border-strong);
+    color: var(--color-text);
+  }
+
+  .app__dot {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: #4ade80;
+    box-shadow: 0 0 10px #4ade80;
+  }
+
+  .app__name {
+    font-weight: 500;
+  }
+
+  .app__arrow {
+    margin-left: auto;
+    color: var(--color-muted);
   }
 </style>

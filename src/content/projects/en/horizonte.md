@@ -5,6 +5,7 @@ status: live
 featured: true
 order: 1
 areas: [earth-observation, software, architecture]
+theme: sky
 technologies: [TypeScript, Vite, Leaflet, OGC WMS, Vitest, Cloudflare]
 image:
   src: /images/projects/horizonte.jpg

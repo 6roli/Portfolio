@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/PageHeader.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
 import { useTranslations } from '../../i18n';
 import { getProjects } from '../../lib/projects';
@@ -10,8 +11,7 @@ const projects = await getProjects(locale);
 ---
 
 <BaseLayout title={t('projects.title')}>
-  <h1>{t('projects.title')}</h1>
-  <p class="lead">{t('projects.intro')}</p>
+  <PageHeader slot="hero" eyebrow={t('projects.eyebrow')} title={t('projects.title')} lead={t('projects.intro')} />
   <div class="grid">
     {projects.map((project) => <ProjectCard project={project} />)}
   </div>

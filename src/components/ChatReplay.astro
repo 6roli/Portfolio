@@ -35,14 +35,14 @@ const { caption, messages, title } = Astro.props;
 
 <style>
   .replay {
-    margin: 1.75rem 0 0;
+    margin: 0;
   }
 
   .replay__window {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
-    border-radius: 14px;
-    box-shadow: 0 10px 30px rgb(27 33 40 / 0.08);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 30px 80px -40px color-mix(in srgb, var(--accent) 60%, transparent);
     overflow: hidden;
   }
 
@@ -50,32 +50,35 @@ const { caption, messages, title } = Astro.props;
     display: flex;
     align-items: center;
     gap: 0.4rem;
-    padding: 0.6rem 0.9rem;
-    background: var(--color-accent);
-    color: #fff;
+    padding: 0.7rem 1rem;
+    background: var(--color-surface-2);
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-muted);
   }
 
   .replay__bar span {
     width: 0.65rem;
     height: 0.65rem;
     border-radius: 50%;
-    background: rgb(255 255 255 / 0.55);
+    background: rgb(255 255 255 / 0.18);
   }
 
   .replay__bar p {
     margin: 0 0 0 0.5rem;
-    font-weight: 700;
-    font-size: 0.95rem;
+    font-weight: 500;
+    font-size: 0.9rem;
   }
 
   .replay__messages {
     list-style: none;
     margin: 0;
-    padding: 1rem;
+    padding: 1.25rem;
     display: flex;
     flex-direction: column;
     gap: 0.65rem;
-    background: linear-gradient(var(--color-bg), var(--color-surface));
+    background:
+      radial-gradient(60% 50% at 100% 100%, color-mix(in srgb, var(--accent-2) 10%, transparent), transparent),
+      var(--color-surface);
   }
 
   .bubble {
@@ -92,14 +95,15 @@ const { caption, messages, title } = Astro.props;
 
   .bubble--user {
     align-self: flex-end;
-    background: var(--color-accent);
-    color: #fff;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #07080b;
     border-bottom-right-radius: 4px;
   }
 
   .bubble--bot {
     align-self: flex-start;
-    background: var(--color-accent-soft);
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-border);
     color: var(--color-text);
     border-bottom-left-radius: 4px;
   }

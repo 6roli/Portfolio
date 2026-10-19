@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
 import Pending from '../components/Pending.astro';
 import { githubUrl, profile } from '../config/site';
 import { useTranslations } from '../i18n';
@@ -8,9 +9,8 @@ const t = useTranslations(Astro.currentLocale);
 ---
 
 <BaseLayout title={t('contact.title')}>
+  <PageHeader slot="hero" eyebrow={t('contact.eyebrow')} title={t('contact.title')} lead={t('contact.intro')} />
   <div class="reading">
-    <h1>{t('contact.title')}</h1>
-    <p class="lead">{t('contact.intro')}</p>
 
     <dl class="contact-list">
       <dt>{t('contact.email')}</dt>

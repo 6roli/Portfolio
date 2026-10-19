@@ -29,7 +29,9 @@ Add an `npm run verify` script that runs the type check, tests and build. Cloudf
 ## 2. Identity
 
 - Give the app its **own name**, defined once in a config file and in `<title>`.
-- Keep the shared tokens (light background, dark text, `#0b6782` accent) so it reads as related to the portfolio.
+- Keep the shared look (near-black background, white pill buttons, Inter font, hairline borders) so it reads as
+  related to the portfolio. Each app picks its own two accent colours, like the project themes in
+  `src/config/themes.ts` (e.g. Horizonte uses `sky`).
 - Always include a visible link back to the portfolio.
 
 ## 3. Data (if any)

@@ -1,0 +1,148 @@
+---
+/**
+ * Decorative row of glass panels showing one shared "liquid" wave. Each panel
+ * shows its own slice of the same scene, shifted up or down, so the wave
+ * looks refracted through vertical glass. Colours come from --accent and
+ * --accent-2, so every project gets its own tint. Pure SVG + CSS, no JavaScript;
+ * the slow drift stops with reduced motion.
+ */
+interface Props {
+  /** Unique per page, used for SVG ids. */
+  id?: string;
+  /** Number of panels on wide screens (5 on phones). */
+  panels?: number;
+  /** Visual height, e.g. "22rem". */
+  height?: string;
+}
+
+const { id = 'liquid', panels = 9, height = 'clamp(13rem, 30vw, 23rem)' } = Astro.props;
+
+const W = 900;
+const H = 400;
+
+// Smooth wave across the whole scene, sampled as a polyline.
+function wave(base: number, amplitude: number, periods: number, phase: number): string {
+  const points: string[] = [];
+  for (let x = -20; x <= W + 20; x += 10) {
+    const y = base + amplitude * Math.sin((x / W) * Math.PI * 2 * periods + phase);
+    points.push(`${x},${y.toFixed(1)}`);
+  }
+  return `M${points.join(' L')}`;
+}
+
+const top = wave(150, 38, 1.25, 0.6);
+const bottom = wave(330, 26, 1.6, 2.4);
+const topBody = `${top} L${W + 20},${H} L-20,${H} Z`;
+
+// Static vertical offset of each slice (in % of the panel height).
+const slices = Array.from({ length: panels }, (_, i) => ({
+  i,
+  shift: (Math.sin(i * 1.1) * 9 + Math.cos(i * 0.45) * 5).toFixed(1),
+  // Vertical stretch, as if each pane of glass had a slightly different lens.
+  stretch: (1 + 0.18 * Math.sin(i * 2.3 + 0.5)).toFixed(2),
+}));
+---
+
+<div class="liquid" style={`--n: ${panels}; --h: ${height}`} aria-hidden="true">
+  <svg class="liquid__defs" width="0" height="0">
+    <defs>
+      <linearGradient id={`${id}-body`} x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" style="stop-color: var(--accent); stop-opacity: 0.5" />
+        <stop offset="0.3" style="stop-color: var(--accent-2); stop-opacity: 0.22" />
+        <stop offset="0.75" style="stop-color: var(--accent-2); stop-opacity: 0" />
+      </linearGradient>
+      <linearGradient id={`${id}-sheen`} x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" style="stop-color: var(--accent)" />
+        <stop offset="0.5" style="stop-color: #ffffff" />
+        <stop offset="1" style="stop-color: var(--accent-2)" />
+      </linearGradient>
+      <filter id={`${id}-blur-xl`} filterUnits="userSpaceOnUse" x="-100" y="-300" width="1100" height="1000"><feGaussianBlur stdDeviation="22" /></filter>
+      <filter id={`${id}-blur-md`} filterUnits="userSpaceOnUse" x="-100" y="-300" width="1100" height="1000"><feGaussianBlur stdDeviation="7" /></filter>
+      <filter id={`${id}-blur-sm`} filterUnits="userSpaceOnUse" x="-100" y="-300" width="1100" height="1000"><feGaussianBlur stdDeviation="1.6" /></filter>
+      <symbol id={`${id}-scene`} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
+        <path d={topBody} fill={`url(#${id}-body)`} filter={`url(#${id}-blur-md)`} />
+        <path d={top} fill="none" stroke-width="70" style="stroke: var(--accent-2)" opacity="0.55" filter={`url(#${id}-blur-xl)`} />
+        <path d={top} fill="none" stroke-width="20" style="stroke: var(--accent)" opacity="0.9" filter={`url(#${id}-blur-md)`} />
+        <path d={top} fill="none" stroke-width="3" transform="translate(0 -9)" stroke="#5be7ff" opacity="0.55" filter={`url(#${id}-blur-sm)`} />
+        <path d={top} fill="none" stroke-width="3" transform="translate(0 9)" stroke="#ff9a3c" opacity="0.6" filter={`url(#${id}-blur-sm)`} />
+        <path d={top} fill="none" stroke-width="4" stroke={`url(#${id}-sheen)`} filter={`url(#${id}-blur-sm)`} />
+        <path d={bottom} fill="none" stroke-width="40" style="stroke: var(--accent-2)" opacity="0.35" filter={`url(#${id}-blur-xl)`} />
+        <path d={bottom} fill="none" stroke-width="2.5" stroke="#ffffff" opacity="0.45" filter={`url(#${id}-blur-sm)`} />
+        <path d={bottom} fill="none" stroke-width="2.5" transform="translate(0 7)" stroke="#ff9a3c" opacity="0.35" filter={`url(#${id}-blur-sm)`} />
+      </symbol>
+    </defs>
+  </svg>
+
+  {
+    slices.map(({ i, shift, stretch }) => (
+      <div class="liquid__panel" style={`--i: ${i}; --shift: ${shift}%; --stretch: ${stretch}`}>
+        <svg class="liquid__scene" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
+          <use href={`#${id}-scene`} />
+        </svg>
+      </div>
+    ))
+  }
+</div>
+
+<style>
+  .liquid {
+    display: flex;
+    height: var(--h);
+    overflow: hidden;
+    background: #000;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .liquid__defs {
+    position: absolute;
+  }
+
+  .liquid__panel {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+    border-left: 1px solid rgb(255 255 255 / 0.06);
+  }
+
+  .liquid__panel:first-of-type {
+    border-left: 0;
+  }
+
+  /* Glass edge: a faint highlight on the left, shade on the right. */
+  .liquid__panel::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgb(255 255 255 / 0.05), transparent 25%, transparent 75%, rgb(0 0 0 / 0.25));
+    pointer-events: none;
+  }
+
+  .liquid__scene {
+    position: absolute;
+    top: calc(var(--shift) - 12%);
+    left: calc(var(--i) * -100%);
+    width: calc(var(--n) * 100%);
+    height: 124%;
+    animation: drift 11s ease-in-out infinite alternate;
+    animation-delay: calc(var(--i) * -1.3s);
+  }
+
+  @keyframes drift {
+    from {
+      transform: translateY(-5%) scaleY(var(--stretch));
+    }
+    to {
+      transform: translateY(5%) scaleY(var(--stretch));
+    }
+  }
+
+  @media (max-width: 40rem) {
+    .liquid {
+      --n: 5 !important;
+    }
+
+    .liquid__panel:nth-of-type(n + 6) {
+      display: none;
+    }
+  }
+</style>

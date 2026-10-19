@@ -3,6 +3,7 @@ import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Pending from '../../components/Pending.astro';
 import ChatReplay from '../../components/ChatReplay.astro';
+import LiquidBands from '../../components/LiquidBands.astro';
 import { render } from 'astro:content';
 import { localizedPath, useTranslations, defaultLocale } from '../../i18n';
 import { getProjects, projectSlug, type Project } from '../../lib/projects';
@@ -31,15 +32,16 @@ const sections: { key: keyof typeof data; label: UiKey }[] = [
   { key: 'method', label: 'projects.method' },
   { key: 'results', label: 'projects.results' },
   { key: 'limitations', label: 'projects.limitations' },
+  { key: 'architecture', label: 'projects.architecture' },
 ];
+const number = (index: number) => String(index + 1).padStart(2, '0');
 ---
 
-<BaseLayout title={data.title} description={data.summary} image={data.image?.src}>
-  <p><a href={localizedPath('/projects/', Astro.currentLocale)}>← {t('projects.back')}</a></p>
-
-  <article class="project">
-    <header class="reading">
-      <p class="status">{t(`projects.status.${data.status}`)}</p>
+<BaseLayout title={data.title} description={data.summary} image={data.image?.src} theme={data.theme}>
+  <header class="project-hero" slot="hero">
+    <div class="container project-hero__inner">
+      <p class="back"><a href={localizedPath('/projects/', Astro.currentLocale)}>← {t('projects.back')}</a></p>
+      <p class="eyebrow">{t(`projects.status.${data.status}`)}</p>
       <h1>{data.title}</h1>
       <p class="lead">{data.summary}</p>
       <div class="actions">
@@ -51,11 +53,14 @@ const sections: { key: keyof typeof data; label: UiKey }[] = [
             </a>
           )
         }
-        {data.repoUrl && !data.repoIsPublic && <span class="muted">{t('projects.codePrivate')}</span>}
+        {data.repoUrl && !data.repoIsPublic && <span class="muted private">{t('projects.codePrivate')}</span>}
       </div>
       {data.demoNote && <p class="demo-note muted">{data.demoNote}</p>}
-    </header>
+    </div>
+    <LiquidBands id={`${projectSlug(project)}-liquid`} panels={7} height="clamp(7rem, 14vw, 10rem)" />
+  </header>
 
+  <article class="project">
     {data.transcript && <ChatReplay {...data.transcript} title={data.title} />}
 
     {
@@ -69,64 +74,180 @@ const sections: { key: keyof typeof data; label: UiKey }[] = [
 
     {data.needsReview && <p class="review-note">{t('projects.needsReview')}</p>}
 
-    <div class="reading">
-      {
-        sections.map(({ key, label }) => {
-          const text = data[key] as string | null;
-          return (
-            <section>
-              <h2>{t(label)}</h2>
-              {text ? <p>{text}</p> : <Pending />}
-            </section>
-          );
-        })
-      }
-
-      <section>
-        <h2>{t('projects.architecture')}</h2>
-        {data.architecture ? <p>{data.architecture}</p> : <Pending />}
-      </section>
-    </div>
-
     {
-      data.architectureImage && (
-        <figure class="diagram">
-          <img src={data.architectureImage.src} alt={data.architectureImage.alt} width="960" height="620" loading="lazy" />
-        </figure>
-      )
+      sections.map(({ key, label }, index) => {
+        const text = data[key] as string | null;
+        return (
+          <section class="block">
+            <h2>
+              <span class="block__number">{number(index)}</span>
+              {t(label)}
+            </h2>
+            <div class="block__body">
+              {text ? <p>{text}</p> : <Pending />}
+              {key === 'architecture' && data.architectureImage && (
+                <figure class="diagram">
+                  <img
+                    src={data.architectureImage.src}
+                    alt={data.architectureImage.alt}
+                    width="960"
+                    height="620"
+                    loading="lazy"
+                  />
+                </figure>
+              )}
+            </div>
+          </section>
+        );
+      })
     }
 
-    <div class="reading">
-      <section>
-        <h2>{t('projects.technologies')}</h2>
+    <section class="block">
+      <h2>
+        <span class="block__number">{number(sections.length)}</span>
+        {t('projects.technologies')}
+      </h2>
+      <div class="block__body">
         <ul class="tag-list">
           {data.technologies.map((tech) => <li class="tag">{tech}</li>)}
         </ul>
-      </section>
+      </div>
+    </section>
 
-      {
-        hasBody && (
-          <div class="body">
-            <Content />
-          </div>
-        )
-      }
-    </div>
+    {
+      hasBody && (
+        <div class="body reading">
+          <Content />
+        </div>
+      )
+    }
   </article>
 </BaseLayout>
 
 <style>
-  .demo-note {
-    margin: 0.6rem 0 0;
+  .project-hero {
+    background:
+      radial-gradient(50% 80% at 85% 100%, color-mix(in srgb, var(--accent-2) 24%, transparent), transparent 70%),
+      radial-gradient(35% 60% at 100% 30%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 70%),
+      var(--color-bg);
+  }
+
+  .project-hero__inner {
+    padding-block: clamp(2rem, 6vw, 4rem) clamp(2rem, 5vw, 3rem);
+  }
+
+  .project-hero h1 {
+    font-weight: 400;
+    letter-spacing: -0.035em;
+  }
+
+  .back {
+    margin-bottom: 2rem;
+    font-size: 0.92rem;
+  }
+
+  .back a {
+    color: var(--color-muted);
+    text-decoration: none;
+  }
+
+  .back a:hover {
+    color: var(--color-text);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1.75rem;
+  }
+
+  .private {
     font-size: 0.9rem;
   }
 
+  .demo-note {
+    margin: 0.8rem 0 0;
+    font-size: 0.88rem;
+  }
+
+  .hero-figure {
+    margin: 0 0 1rem;
+  }
+
+  .hero-figure img {
+    width: 100%;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    box-shadow: 0 30px 80px -40px color-mix(in srgb, var(--accent) 60%, transparent);
+  }
+
+  figcaption {
+    margin-top: 0.6rem;
+    font-size: 0.84rem;
+    color: var(--color-muted);
+  }
+
+  .review-note {
+    max-width: var(--reading-width);
+    margin: 1.5rem 0 0;
+    border: 1px solid var(--color-pending-border);
+    border-radius: var(--radius);
+    background: var(--color-pending-bg);
+    color: var(--color-pending-text);
+    padding: 0.7rem 1rem;
+    font-size: 0.93rem;
+  }
+
+  /* Each section: small numbered label on the left, text on the right. */
+  .block {
+    display: grid;
+    grid-template-columns: minmax(10rem, 15rem) minmax(0, 1fr);
+    gap: 0.5rem 2.5rem;
+    padding-block: 2.25rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .block:first-of-type {
+    margin-top: 2.5rem;
+  }
+
+  .block h2 {
+    margin: 0;
+    font-size: 1.15rem;
+    letter-spacing: -0.01em;
+  }
+
+  .block__number {
+    display: block;
+    margin-bottom: 0.3rem;
+    font-size: 0.8rem;
+    color: var(--accent-text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .block__body {
+    max-width: var(--reading-width);
+  }
+
+  .block__body p:last-child {
+    margin-bottom: 0;
+  }
+
+  @media (max-width: 48rem) {
+    .block {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* The diagram is drawn on a light background, so it sits on a light card. */
   .diagram {
-    margin: 1.25rem 0 0;
-    background: var(--color-surface);
+    margin: 1.5rem 0 0;
+    background: #f4f5f7;
     border: 1px solid var(--color-border);
     border-radius: var(--radius);
-    padding: 0.5rem;
+    padding: 0.75rem;
     overflow-x: auto;
   }
 
@@ -136,9 +257,14 @@ const sections: { key: keyof typeof data; label: UiKey }[] = [
   }
 
   /* Markdown body: code blocks and tables. */
+  .body {
+    margin-top: 2rem;
+  }
+
   .body :global(pre) {
-    padding: 1rem;
+    padding: 1rem 1.2rem;
     border-radius: var(--radius);
+    border: 1px solid var(--color-border);
     overflow-x: auto;
     font-size: 0.85rem;
   }
@@ -152,49 +278,8 @@ const sections: { key: keyof typeof data; label: UiKey }[] = [
   .body :global(th),
   .body :global(td) {
     text-align: left;
-    padding: 0.4rem 0.6rem;
+    padding: 0.5rem 0.6rem;
     border-bottom: 1px solid var(--color-border);
     vertical-align: top;
-  }
-
-  .status {
-    margin: 0 0 0.3rem;
-    font-size: 0.8rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--color-accent);
-  }
-
-  .actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .hero-figure {
-    margin: 2rem 0 0;
-  }
-
-  .hero-figure img {
-    width: 100%;
-    border-radius: var(--radius);
-    border: 1px solid var(--color-border);
-  }
-
-  figcaption {
-    margin-top: 0.4rem;
-    font-size: 0.85rem;
-    color: var(--color-muted);
-  }
-
-  .review-note {
-    margin-top: 1.5rem;
-    max-width: var(--reading-width);
-    border-left: 3px solid var(--color-pending-border);
-    background: var(--color-pending-bg);
-    color: var(--color-pending-text);
-    padding: 0.6rem 0.9rem;
   }
 </style>

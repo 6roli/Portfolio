@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
 import Pending from '../components/Pending.astro';
 import Timeline from '../components/Timeline.astro';
 import { about } from '../config/about';
@@ -18,9 +19,13 @@ const technologies = [...new Set(projects.flatMap((project) => project.data.tech
 ---
 
 <BaseLayout title={t('cv.title')}>
+  <PageHeader
+    slot="hero"
+    eyebrow={t('cv.eyebrow')}
+    title={t('cv.title')}
+    lead={`${profile.name}${profile.location ? ` · ${profile.location}` : ''}`}
+  />
   <div class="reading">
-    <h1>{t('cv.title')}</h1>
-    <p class="muted">{profile.name}{profile.location && ` · ${profile.location}`}</p>
 
     {
       profile.cvFile ? (

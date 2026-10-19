@@ -2,6 +2,7 @@ import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 import { focusAreas } from './config/site';
+import { themeIds } from './config/themes';
 
 const focusAreaIds = focusAreas.map((area) => area.id) as [string, ...string[]];
 
@@ -22,6 +23,8 @@ const projects = defineCollection({
     /** Lower numbers appear first. */
     order: z.number().int().default(100),
     areas: z.array(z.enum(focusAreaIds)).min(1),
+    /** Accent colours of the project page and card (see src/config/themes.ts). */
+    theme: z.enum(themeIds).default('aurora'),
     technologies: z.array(z.string()).default([]),
     image: z
       .object({
