@@ -51,7 +51,7 @@ const { url } = Astro.props;
   </div>
 
   <p class="live__error" data-error hidden>
-    The live data could not be loaded right now. The files are public in the
+    The live data could not be loaded right now. The files are public in the{' '}
     <a href="https://huggingface.co/buckets/groli/weather-warehouse">Hugging Face bucket</a>.
   </p>
 
@@ -130,7 +130,8 @@ const { url } = Astro.props;
   async function load(root: HTMLElement) {
     const meta = root.querySelector<HTMLElement>('[data-meta]')!;
     try {
-      const response = await fetch(root.dataset.liveSnapshot!, { cache: 'no-store' });
+      // Hugging Face answers 404 to requests that carry another site's Referer, so send none.
+      const response = await fetch(root.dataset.liveSnapshot!, { cache: 'no-store', referrerPolicy: 'no-referrer' });
       if (!response.ok) throw new Error(String(response.status));
       const data: Snapshot = await response.json();
 
@@ -181,6 +182,11 @@ const { url } = Astro.props;
 
 <!-- Global: table rows are created by the script, so scoped styles would not reach them. -->
 <style is:global>
+  /* Elements below set their own display, which would otherwise override [hidden]. */
+  .live [hidden] {
+    display: none;
+  }
+
   .live {
     padding: clamp(1.1rem, 3vw, 1.75rem);
     box-shadow: 0 30px 80px -40px color-mix(in srgb, var(--accent) 50%, transparent);
