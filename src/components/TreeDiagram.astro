@@ -1,0 +1,179 @@
+---
+/**
+ * The working method drawn as a tree: roots (understand), sprouts (explore),
+ * trunk (execute) and branches (grow), with a dashed arrow from the branches
+ * back to the roots because the process is iterative. The ground line echoes
+ * the portfolio's horizon mark.
+ *
+ * `highlight` lights one part and dims the rest (small glyph next to each
+ * stage); without it, all parts are shown with numbered labels.
+ */
+import type { TreePart } from '../config/about';
+
+interface Props {
+  highlight?: TreePart;
+  /** Accessible description; omit for decorative glyphs. */
+  label?: string;
+}
+
+const { highlight, label } = Astro.props;
+const full = !highlight;
+const state = (part: TreePart) => (full || highlight === part ? 'on' : 'off');
+
+// Number badges, in reading order of the stages.
+const badges: { part: TreePart; n: number; x: number; y: number }[] = [
+  { part: 'roots', n: 1, x: 56, y: 262 },
+  { part: 'sprouts', n: 2, x: 36, y: 168 },
+  { part: 'trunk', n: 3, x: 150, y: 150 },
+  { part: 'branches', n: 4, x: 44, y: 42 },
+];
+---
+
+<svg
+  class:list={['tree', { 'tree--glyph': !full }]}
+  viewBox="0 0 240 300"
+  role={label ? 'img' : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : 'true'}
+>
+  {
+    full && (
+      <defs>
+        <marker id="tree-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" class="tree__arrow-head" />
+        </marker>
+      </defs>
+    )
+  }
+
+  <!-- Ground: the horizon line. -->
+  <line x1="12" y1="196" x2="228" y2="196" class="tree__ground" />
+
+  <g class={`tree__part tree__part--${state('roots')}`}>
+    <path d="M120 196 C112 222 94 238 66 252" />
+    <path d="M120 196 C130 224 150 240 178 256" />
+    <path d="M120 196 C119 222 118 246 116 272" />
+    <path d="M104 220 C92 226 82 228 70 226" />
+    <path d="M136 222 C150 230 160 230 172 228" />
+  </g>
+
+  <g class={`tree__part tree__part--${state('sprouts')}`}>
+    <path d="M62 196 C62 186 58 180 52 176" />
+    <ellipse cx="49" cy="173" rx="7" ry="3.5" transform="rotate(-35 49 173)" class="tree__leaf" />
+    <path d="M178 196 C178 186 182 180 188 177" />
+    <ellipse cx="191" cy="174" rx="7" ry="3.5" transform="rotate(30 191 174)" class="tree__leaf" />
+    <path d="M90 196 C90 190 88 186 85 184" />
+    <ellipse cx="83" cy="182" rx="4.5" ry="2.3" transform="rotate(-35 83 182)" class="tree__leaf" />
+  </g>
+
+  <g class={`tree__part tree__part--${state('trunk')}`}>
+    <path d="M110 196 C112 160 114 132 116 108 L124 108 C126 132 128 160 130 196 Z" class="tree__trunk" />
+  </g>
+
+  <g class={`tree__part tree__part--${state('branches')}`}>
+    <path d="M118 112 C108 92 88 78 64 64" />
+    <path d="M122 110 C134 88 154 74 180 60" />
+    <path d="M120 108 C120 86 120 66 120 40" />
+    <path d="M90 82 C84 70 82 60 82 48" />
+    <path d="M152 78 C158 66 162 56 164 44" />
+    <circle cx="64" cy="64" r="4" class="tree__leaf" />
+    <circle cx="180" cy="60" r="4" class="tree__leaf" />
+    <circle cx="120" cy="38" r="4" class="tree__leaf" />
+    <circle cx="82" cy="46" r="3" class="tree__leaf" />
+    <circle cx="164" cy="42" r="3" class="tree__leaf" />
+  </g>
+
+  {
+    full && (
+      <>
+        <path d="M196 64 C236 110 236 220 186 262" class="tree__loop" marker-end="url(#tree-arrow)" />
+        {badges.map(({ n, x, y }) => (
+          <g class="tree__badge">
+            <circle cx={x} cy={y} r="11" />
+            <text x={x} y={y + 4}>
+              {n}
+            </text>
+          </g>
+        ))}
+      </>
+    )
+  }
+</svg>
+
+<style>
+  .tree {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .tree__ground {
+    stroke: var(--color-border-strong);
+    stroke-width: 1.5;
+  }
+
+  .tree__part path,
+  .tree__part ellipse,
+  .tree__part circle {
+    fill: none;
+    stroke-width: 3;
+    stroke-linecap: round;
+    transition:
+      stroke 0.2s,
+      opacity 0.2s;
+  }
+
+  .tree__part--on path,
+  .tree__part--on ellipse,
+  .tree__part--on circle {
+    stroke: var(--accent);
+  }
+
+  .tree__part--on .tree__leaf,
+  .tree__part--on .tree__trunk {
+    fill: color-mix(in srgb, var(--accent) 35%, transparent);
+  }
+
+  .tree__part--on .tree__trunk {
+    stroke: var(--accent-2);
+  }
+
+  .tree__part--off path,
+  .tree__part--off ellipse,
+  .tree__part--off circle {
+    stroke: var(--color-faint);
+    opacity: 0.45;
+  }
+
+  .tree--glyph .tree__part path,
+  .tree--glyph .tree__part ellipse,
+  .tree--glyph .tree__part circle {
+    stroke-width: 6;
+  }
+
+  .tree__loop {
+    fill: none;
+    stroke: var(--color-muted);
+    stroke-width: 1.5;
+    stroke-dasharray: 5 5;
+  }
+
+  .tree__arrow-head {
+    fill: var(--color-muted);
+  }
+
+  .tree__badge circle {
+    fill: var(--color-bg);
+    stroke: var(--accent-text);
+    stroke-width: 1.5;
+  }
+
+  .tree__badge text {
+    fill: var(--color-text);
+    font-size: 12px;
+    font-weight: 600;
+    text-anchor: middle;
+    font-family: var(--font-sans);
+  }
+</style>

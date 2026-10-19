@@ -3,29 +3,414 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/PageHeader.astro';
 import Pending from '../components/Pending.astro';
 import Timeline from '../components/Timeline.astro';
+import TreeDiagram from '../components/TreeDiagram.astro';
 import { about } from '../config/about';
 import { focusAreas } from '../config/site';
 import { useTranslations } from '../i18n';
 
 const t = useTranslations(Astro.currentLocale);
+const [lead, ...restOfBio] = about.bio;
+const number = (index: number) => String(index + 1).padStart(2, '0');
+const treeLabel = `Tree showing the four stages: ${about.stages
+  .map((stage, index) => `${index + 1}, ${stage.partLabel.toLowerCase()}: ${stage.title.toLowerCase()}`)
+  .join('; ')}. A dashed arrow goes from the branches back to the roots: the process repeats.`;
 ---
 
-<BaseLayout title={t('about.title')}>
-  <PageHeader slot="hero" eyebrow={t('about.eyebrow')} title={t('about.title')} />
-  <div class="reading">
-    {about.bio.length > 0 ? about.bio.map((paragraph) => <p class="lead">{paragraph}</p>) : <Pending what="Biography" />}
+<BaseLayout title={t('about.title')} theme="moss">
+  <PageHeader slot="hero" eyebrow={t('about.eyebrow')} title={t('about.title')} lead={lead}>
+    {restOfBio.map((paragraph) => <p class="header-text">{paragraph}</p>)}
+    {!lead && <Pending what="Biography" />}
+    <nav class="toc" aria-label={t('about.onThisPage')}>
+      <a href="#background">{t('about.background')}</a>
+      <a href="#approach">{t('about.approach')}</a>
+      <a href="#ai">{t('about.ai')}</a>
+      <a href="#curiosity">{t('about.curiosity')}</a>
+    </nav>
+  </PageHeader>
 
-    <h2>{t('about.education')}</h2>
-    <Timeline entries={about.education} pendingLabel="Education" />
+  <section id="background" aria-labelledby="background-title">
+    <p class="eyebrow">{t('about.background')}</p>
+    <h2 id="background-title">{t('about.backgroundTitle')}</h2>
+    {about.backgroundPending.length > 0 && <Pending what={about.backgroundPending.join('; ')} />}
+    <div class="two-columns">
+      <div>
+        <h3>{t('about.education')}</h3>
+        <Timeline entries={about.education} pendingLabel="Education" />
+      </div>
+      <div>
+        <h3>{t('about.experience')}</h3>
+        <Timeline entries={about.experience} pendingLabel="Professional experience" />
+      </div>
+    </div>
+  </section>
 
-    <h2>{t('about.experience')}</h2>
-    <Timeline entries={about.experience} pendingLabel="Professional experience" />
+  <section id="approach" aria-labelledby="approach-title">
+    <p class="eyebrow">{t('about.approach')}</p>
+    <h2 id="approach-title">{t('about.approachTitle')}</h2>
+    <p class="lead">{about.approachIntro}</p>
 
-    <h2>{t('about.interests')}</h2>
-    <ul>
-      {focusAreas.map((area) => <li>{area.title}</li>)}
-      {about.interests.map((interest) => <li>{interest}</li>)}
+    <div class="approach">
+      <figure class="approach__tree panel">
+        <TreeDiagram label={treeLabel} />
+        <figcaption>
+          <ol class="legend">
+            {
+              about.stages.map((stage) => (
+                <li>
+                  <strong>{stage.partLabel}</strong> {stage.title.toLowerCase()}
+                </li>
+              ))
+            }
+          </ol>
+          <p class="legend__loop"><span aria-hidden="true">↺</span> {t('about.iterate')}</p>
+        </figcaption>
+      </figure>
+
+      <ol class="stages">
+        {
+          about.stages.map((stage, index) => (
+            <li class="stage panel">
+              <div class="stage__head">
+                <div class="stage__glyph">
+                  <TreeDiagram highlight={stage.part} />
+                </div>
+                <div>
+                  <p class="stage__part">
+                    {number(index)} · {stage.partLabel}
+                  </p>
+                  <h3>{stage.title}</h3>
+                </div>
+              </div>
+              <p>{stage.summary}</p>
+              <h4>{t('about.inPractice')}</h4>
+              <ul class="evidence">
+                {stage.evidence.map((item) => (
+                  <li>
+                    <a href={item.href}>{item.project}</a> — {item.text}
+                  </li>
+                ))}
+              </ul>
+              {stage.pending && <Pending what={stage.pending} />}
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section id="ai" aria-labelledby="ai-title">
+    <p class="eyebrow">{t('about.ai')}</p>
+    <h2 id="ai-title">{t('about.aiTitle')}</h2>
+    <p class="lead">{about.ai.intro}</p>
+    <ol class="practices">
+      {
+        about.ai.practices.map((practice, index) => (
+          <li class="practice panel">
+            <span class="practice__number">{number(index)}</span>
+            <h3>{practice.title}</h3>
+            <p class="muted">{practice.text}</p>
+          </li>
+        ))
+      }
+    </ol>
+    <div class="reading ai-example">
+      <h4>{t('about.inPractice')}</h4>
+      <p>
+        <a href={about.ai.evidence.href}>{about.ai.evidence.project}</a> — {about.ai.evidence.text}
+      </p>
+      {about.ai.pending && <Pending what={about.ai.pending} />}
+    </div>
+  </section>
+
+  <section id="curiosity" aria-labelledby="curiosity-title">
+    <p class="eyebrow">{t('about.curiosity')}</p>
+    <h2 id="curiosity-title">{t('about.curiosityTitle')}</h2>
+    <p class="lead">{about.curiosity.intro}</p>
+    <ul class="questions">
+      {
+        about.curiosity.questions.map((item) => (
+          <li>
+            <a class="question panel" href={item.href}>
+              <span class="question__text">{item.question}</span>
+              <span class="question__project">
+                {item.project} <span aria-hidden="true">→</span>
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <h3 class="interests-title">{t('about.interests')}</h3>
+    <ul class="tag-list">
+      {focusAreas.map((area) => <li class="tag">{area.title}</li>)}
+      {about.interests.map((interest) => <li class="tag">{interest}</li>)}
     </ul>
     {about.interests.length === 0 && <Pending what="Personal interests beyond the focus areas" />}
-  </div>
+  </section>
 </BaseLayout>
+
+<style>
+  .header-text {
+    max-width: var(--reading-width);
+    color: var(--color-muted);
+  }
+
+  .toc {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1.75rem;
+  }
+
+  .toc a {
+    padding: 0.35rem 0.9rem;
+    border: 1px solid var(--color-border-strong);
+    border-radius: 999px;
+    color: var(--color-text);
+    font-size: 0.9rem;
+    text-decoration: none;
+  }
+
+  .toc a:hover {
+    border-color: var(--accent);
+  }
+
+  section {
+    scroll-margin-top: 5rem;
+  }
+
+  section + section {
+    margin-top: 5.5rem;
+  }
+
+  .eyebrow + h2 {
+    margin-top: 0;
+  }
+
+  h4 {
+    margin: 1.25rem 0 0.5rem;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .two-columns {
+    display: grid;
+    gap: 1rem 2.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    margin-top: 1.75rem;
+  }
+
+  .two-columns h3 {
+    margin-bottom: 0.9rem;
+  }
+
+  /* Tree on the left (sticky on wide screens), stages on the right. */
+  .approach {
+    display: grid;
+    grid-template-columns: minmax(14rem, 19rem) minmax(0, 1fr);
+    gap: 1.5rem;
+    align-items: start;
+    margin-top: 2rem;
+  }
+
+  .approach__tree {
+    position: sticky;
+    top: 5.5rem;
+    margin: 0;
+    padding: 1.5rem 1.25rem 1.25rem;
+  }
+
+  .approach__tree :global(.tree) {
+    max-width: 15rem;
+    margin-inline: auto;
+  }
+
+  .legend {
+    margin: 1.25rem 0 0;
+    padding-left: 1.3rem;
+    font-size: 0.9rem;
+    color: var(--color-muted);
+  }
+
+  .legend strong {
+    color: var(--color-text);
+    font-weight: 500;
+  }
+
+  .legend__loop {
+    margin: 0.6rem 0 0;
+    font-size: 0.85rem;
+    color: var(--color-muted);
+  }
+
+  .stages {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+  }
+
+  .stage {
+    padding: 1.4rem 1.5rem 1.5rem;
+  }
+
+  .stage__head {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.9rem;
+  }
+
+  .stage__glyph {
+    flex: none;
+    width: 3.25rem;
+    height: 3.25rem;
+    padding: 0.3rem;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    background: var(--color-bg);
+  }
+
+  .stage__part {
+    margin: 0 0 0.15rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent-text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stage h3 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 500;
+  }
+
+  .stage > p {
+    margin-bottom: 0;
+  }
+
+  .evidence {
+    margin: 0;
+    padding-left: 1.1rem;
+    font-size: 0.95rem;
+    color: var(--color-muted);
+  }
+
+  .evidence li + li {
+    margin-top: 0.5rem;
+  }
+
+  .evidence a,
+  .ai-example a {
+    font-weight: 500;
+  }
+
+  .stage :global(.pending) {
+    margin: 1rem 0 0;
+    font-size: 0.88rem;
+  }
+
+  @media (max-width: 52rem) {
+    .approach {
+      grid-template-columns: 1fr;
+    }
+
+    .approach__tree {
+      position: static;
+      display: grid;
+      grid-template-columns: minmax(7rem, 11rem) 1fr;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .legend {
+      margin-top: 0;
+    }
+  }
+
+  @media (max-width: 26rem) {
+    .approach__tree {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .practices {
+    list-style: none;
+    margin: 2rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  }
+
+  .practice {
+    padding: 1.3rem 1.3rem 1.4rem;
+  }
+
+  .practice__number {
+    display: block;
+    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+    color: var(--color-faint);
+  }
+
+  .practice p {
+    margin: 0;
+    font-size: 0.95rem;
+  }
+
+  .ai-example {
+    margin-top: 1.5rem;
+  }
+
+  .questions {
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  }
+
+  .question {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1.5rem;
+    height: 100%;
+    padding: 1.3rem 1.3rem 1.2rem;
+    color: var(--color-text);
+    text-decoration: none;
+    transition: border-color 0.2s;
+  }
+
+  .question:hover {
+    color: var(--color-text);
+    border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+  }
+
+  .question__text {
+    font-size: 1.15rem;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+  }
+
+  .question__project {
+    font-size: 0.88rem;
+    color: var(--accent-text);
+  }
+
+  .interests-title {
+    margin: 3rem 0 0.9rem;
+  }
+
+  .interests-title + .tag-list + :global(.pending) {
+    margin-top: 1rem;
+  }
+</style>
