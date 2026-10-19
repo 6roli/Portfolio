@@ -13,6 +13,13 @@ export default defineConfig({
   build: {
     format: 'directory',
   },
+  vite: {
+    build: {
+      // Never inline scripts into the HTML: the Content-Security-Policy in public/_headers
+      // only allows script files from this site (script-src 'self').
+      assetsInlineLimit: 0,
+    },
+  },
   i18n: {
     // English first. To add Spanish: add 'es' here, add src/i18n/es.ts,
     // add pages under src/pages/es/ and content under src/content/projects/es/.

@@ -36,6 +36,13 @@ const projects = defineCollection({
     demoUrl: z.url().optional(),
     /** Text of the demo button, e.g. "Try Chatbot". Defaults to "Open demo". */
     demoLabel: z.string().min(1).max(40).optional(),
+    /** Rules a visitor must follow to use the demo, shown as a numbered box under the buttons. */
+    usage: z.array(z.string().min(1)).optional(),
+    /**
+     * Public JSON snapshot read in the browser to show live data on the project page
+     * (currently the weather warehouse's gold/web/snapshot.json).
+     */
+    liveSnapshot: z.url().optional(),
     /** Short note under the demo button, e.g. that a free server needs time to wake up. */
     demoNote: z.string().optional(),
     /**

@@ -1,0 +1,346 @@
+---
+/**
+ * Live view of the weather warehouse, read in the browser from the public
+ * JSON snapshot that every hourly run writes to the Hugging Face bucket
+ * (gold/web/snapshot.json, ~22 kB). Nothing is fetched at build time, so the
+ * page always shows the latest run; if the file cannot be reached, a plain
+ * message replaces the table.
+ */
+interface Props {
+  url: string;
+}
+
+const { url } = Astro.props;
+---
+
+<section class="live panel" data-live-snapshot={url} aria-labelledby="live-title">
+  <header class="live__head">
+    <div>
+      <p class="live__eyebrow"><span class="live__dot" aria-hidden="true"></span>Live from the warehouse</p>
+      <h2 id="live-title">Spain's 52 provincial capitals, right now</h2>
+    </div>
+    <p class="live__meta muted" data-meta>Loading the latest hourly run…</p>
+  </header>
+
+  <dl class="live__stats" data-stats hidden>
+    <div><dt>Capitals</dt><dd data-stat="capitals">–</dd></div>
+    <div><dt>With a nearby AEMET station</dt><dd data-stat="observed">–</dd></div>
+    <div>
+      <dt>Forecast error, 1–6 h ahead</dt>
+      <dd><span data-stat="mae">–</span><small data-stat="mae-note"></small></dd>
+    </div>
+  </dl>
+
+  <div class="live__table-wrap" data-table-wrap hidden>
+    <table class="live__table">
+      <caption class="visually-hidden">
+        Forecast for the current hour and the next 24 hours, rain expected in 24 hours, and the latest observation at
+        the nearest AEMET station, per capital.
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">Capital</th>
+          <th scope="col" class="num">Forecast now</th>
+          <th scope="col">Next 24 h</th>
+          <th scope="col" class="num">Rain 24 h</th>
+          <th scope="col" class="num">Last observed</th>
+        </tr>
+      </thead>
+      <tbody data-rows></tbody>
+    </table>
+  </div>
+
+  <p class="live__error" data-error hidden>
+    The live data could not be loaded right now. The files are public in the
+    <a href="https://huggingface.co/buckets/groli/weather-warehouse">Hugging Face bucket</a>.
+  </p>
+
+  <p class="live__source muted">
+    Forecasts: <a href="https://open-meteo.com">Open-Meteo</a> (CC BY 4.0). Observations: Fuente: AEMET. Times in
+    Spanish local time.
+  </p>
+</section>
+
+<script>
+  interface Capital {
+    id: string;
+    name: string;
+    temperature_c: number | null;
+    precipitation_24h_mm: number | null;
+    next_24h_temperature_c: (number | null)[];
+    observed: { temperature_c: number | null; observed_at: string; station: string } | null;
+  }
+  interface Snapshot {
+    generated_at: string;
+    forecast_issued_at: string | null;
+    skill: { date: string; temperature_mae_c: { lead_1_6h: number | null } } | null;
+    capitals: Capital[];
+  }
+
+  const timeFormat = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/Madrid',
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+  const hourFormat = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Madrid', hour: '2-digit', minute: '2-digit' });
+  const degrees = (value: number | null) => (value === null ? '–' : `${value.toFixed(1)} °C`);
+
+  function ageText(iso: string): string {
+    const minutes = Math.round((Date.now() - Date.parse(iso)) / 60000);
+    if (minutes < 60) return `${minutes} min ago`;
+    const hours = Math.round(minutes / 60);
+    return `${hours} h ago`;
+  }
+
+  function cell(text: string, className?: string): HTMLTableCellElement {
+    const td = document.createElement('td');
+    td.textContent = text;
+    if (className) td.className = className;
+    return td;
+  }
+
+  // 24-hour temperature line; the hover readout comes from the native tooltip.
+  function sparkline(values: (number | null)[], name: string): SVGSVGElement {
+    const ns = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', '0 0 120 32');
+    svg.setAttribute('class', 'spark');
+    const numbers = values.filter((v): v is number => v !== null);
+    if (numbers.length < 2) return svg;
+    const min = Math.min(...numbers);
+    const max = Math.max(...numbers);
+    const span = max - min || 1;
+    const points = values
+      .map((v, i) => (v === null ? null : `${((i / (values.length - 1)) * 116 + 2).toFixed(1)},${(28 - ((v - min) / span) * 24).toFixed(1)}`))
+      .filter(Boolean)
+      .join(' ');
+    const line = document.createElementNS(ns, 'polyline');
+    line.setAttribute('points', points);
+    svg.append(line);
+    const title = document.createElementNS(ns, 'title');
+    title.textContent = `${name}, next 24 h: ${min.toFixed(1)} to ${max.toFixed(1)} °C`;
+    svg.prepend(title);
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', title.textContent);
+    return svg;
+  }
+
+  async function load(root: HTMLElement) {
+    const meta = root.querySelector<HTMLElement>('[data-meta]')!;
+    try {
+      const response = await fetch(root.dataset.liveSnapshot!, { cache: 'no-store' });
+      if (!response.ok) throw new Error(String(response.status));
+      const data: Snapshot = await response.json();
+
+      const issued = data.forecast_issued_at ?? data.generated_at;
+      meta.textContent = `Forecast issued ${timeFormat.format(new Date(issued))} · updated ${ageText(data.generated_at)}`;
+
+      const observed = data.capitals.filter((c) => c.observed).length;
+      root.querySelector('[data-stat="capitals"]')!.textContent = String(data.capitals.length);
+      root.querySelector('[data-stat="observed"]')!.textContent = String(observed);
+      const mae = data.skill?.temperature_mae_c.lead_1_6h ?? null;
+      root.querySelector('[data-stat="mae"]')!.textContent = mae === null ? 'not yet' : `${mae.toFixed(2)} °C`;
+      if (data.skill && mae !== null) {
+        root.querySelector('[data-stat="mae-note"]')!.textContent = `mean absolute error, ${data.skill.date}`;
+      }
+
+      const rows = root.querySelector('[data-rows]')!;
+      for (const capital of data.capitals) {
+        const tr = document.createElement('tr');
+        const name = document.createElement('th');
+        name.scope = 'row';
+        name.textContent = capital.name;
+        tr.append(name, cell(degrees(capital.temperature_c), 'num strong'));
+        const spark = document.createElement('td');
+        spark.append(sparkline(capital.next_24h_temperature_c, capital.name));
+        tr.append(spark);
+        const rain = capital.precipitation_24h_mm;
+        tr.append(cell(rain === null ? '–' : `${rain.toFixed(1)} mm`, rain ? 'num rain' : 'num muted'));
+        const obs = capital.observed;
+        const obsCell = cell(obs ? degrees(obs.temperature_c) : 'no station', obs ? 'num' : 'num muted');
+        if (obs) {
+          const when = document.createElement('small');
+          when.textContent = `${hourFormat.format(new Date(obs.observed_at))} · ${obs.station}`;
+          obsCell.append(when);
+        }
+        tr.append(obsCell);
+        rows.append(tr);
+      }
+      root.querySelector<HTMLElement>('[data-stats]')!.hidden = false;
+      root.querySelector<HTMLElement>('[data-table-wrap]')!.hidden = false;
+    } catch {
+      meta.textContent = '';
+      root.querySelector<HTMLElement>('[data-error]')!.hidden = false;
+    }
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-live-snapshot]').forEach(load);
+</script>
+
+<!-- Global: table rows are created by the script, so scoped styles would not reach them. -->
+<style is:global>
+  .live {
+    padding: clamp(1.1rem, 3vw, 1.75rem);
+    box-shadow: 0 30px 80px -40px color-mix(in srgb, var(--accent) 50%, transparent);
+  }
+
+  .live__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 0.5rem 1.5rem;
+  }
+
+  .live__head h2 {
+    margin: 0;
+    font-size: clamp(1.25rem, 2.6vw, 1.6rem);
+  }
+
+  .live__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 0 0.4rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .live__dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: #4ade80;
+    box-shadow: 0 0 10px #4ade80;
+  }
+
+  .live__meta {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+
+  .live__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+    gap: 0.75rem;
+    margin: 1.5rem 0 1.25rem;
+  }
+
+  .live__stats div {
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background: var(--color-bg);
+  }
+
+  .live__stats dt {
+    font-size: 0.82rem;
+    color: var(--color-muted);
+  }
+
+  .live__stats dd {
+    margin: 0.2rem 0 0;
+    font-size: 1.7rem;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .live__stats small {
+    display: block;
+    font-size: 0.78rem;
+    letter-spacing: 0;
+    color: var(--color-muted);
+  }
+
+  .live__table-wrap {
+    max-height: 30rem;
+    overflow: auto;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+  }
+
+  .live__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .live__table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--color-surface-2);
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--color-muted);
+    text-align: left;
+  }
+
+  .live__table th,
+  .live__table td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--color-border);
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+
+  .live__table tbody th {
+    font-weight: 500;
+    text-align: left;
+  }
+
+  .live__table tbody tr:hover {
+    background: rgb(255 255 255 / 0.03);
+  }
+
+  .live__table .num {
+    text-align: right;
+  }
+
+  .live__table .strong {
+    color: var(--color-text);
+    font-weight: 500;
+  }
+
+  .live__table .rain {
+    color: #7dd3fc;
+  }
+
+  .live__table td small {
+    display: block;
+    font-size: 0.74rem;
+    color: var(--color-muted);
+  }
+
+  .live__table .spark {
+    display: block;
+    width: 7.5rem;
+    height: 2rem;
+  }
+
+  .live__table .spark polyline {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 2;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .live__error {
+    margin: 1.25rem 0 0;
+    padding: 0.8rem 1rem;
+    border: 1px dashed var(--color-border-strong);
+    border-radius: var(--radius);
+  }
+
+  .live__source {
+    margin: 1rem 0 0;
+    font-size: 0.8rem;
+  }
+</style>
