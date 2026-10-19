@@ -1,14 +1,12 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
 import { localizedPath, useTranslations } from '../i18n';
 
 const t = useTranslations(Astro.currentLocale);
 ---
 
 <BaseLayout title={t('notFound.title')}>
-  <div class="reading">
-    <h1>{t('notFound.title')}</h1>
-    <p class="lead">{t('notFound.body')}</p>
-    <p><a class="button" href={localizedPath('/', Astro.currentLocale)}>{t('notFound.home')}</a></p>
-  </div>
+  <PageHeader slot="hero" eyebrow="404" title={t('notFound.title')} lead={t('notFound.body')} />
+  <p><a class="button" href={localizedPath('/', Astro.currentLocale)}>{t('notFound.home')}</a></p>
 </BaseLayout>

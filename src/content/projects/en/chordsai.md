@@ -5,6 +5,7 @@ status: repository
 featured: false
 order: 20
 areas: [ml, software]
+theme: violet
 technologies: [Python, LangGraph, LangChain, Groq API]
 repoUrl: https://github.com/6roli/ChordsAI
 repoIsPublic: true
