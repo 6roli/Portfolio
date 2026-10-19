@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
 import Pending from '../components/Pending.astro';
 import Timeline from '../components/Timeline.astro';
 import { about } from '../config/about';
@@ -10,8 +11,8 @@ const t = useTranslations(Astro.currentLocale);
 ---
 
 <BaseLayout title={t('about.title')}>
+  <PageHeader slot="hero" eyebrow={t('about.eyebrow')} title={t('about.title')} />
   <div class="reading">
-    <h1>{t('about.title')}</h1>
     {about.bio.length > 0 ? about.bio.map((paragraph) => <p class="lead">{paragraph}</p>) : <Pending what="Biography" />}
 
     <h2>{t('about.education')}</h2>

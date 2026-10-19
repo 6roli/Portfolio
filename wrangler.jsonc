@@ -9,5 +9,8 @@
     "directory": "./dist",
     // Unknown addresses show our own 404 page.
     "not_found_handling": "404-page"
-  }
+  },
+  // Lets Cloudflare build a preview URL for every non-main branch (`wrangler preview`).
+  // Empty on purpose: previews reuse the settings above.
+  "previews": {}
 }

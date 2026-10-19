@@ -1,6 +1,8 @@
 ---
+import '@fontsource-variable/inter';
 import '../styles/global.css';
 import { profile, githubUrl } from '../config/site';
+import { themeStyle, type ThemeId } from '../config/themes';
 import { localizedPath, useTranslations } from '../i18n';
 
 interface Props {
@@ -8,11 +10,13 @@ interface Props {
   description?: string;
   /** Absolute path of a social preview image inside /public. */
   image?: string;
+  /** Colour theme for the whole page; projects pass their own. */
+  theme?: ThemeId;
 }
 
 const locale = Astro.currentLocale ?? 'en';
 const t = useTranslations(locale);
-const { title, description = t('site.description'), image } = Astro.props;
+const { title, description = t('site.description'), image, theme = 'aurora' } = Astro.props;
 
 const pageTitle = title ? `${title} · ${t('site.title')}` : t('site.title');
 const canonical = new URL(Astro.url.pathname, Astro.site);
@@ -23,8 +27,8 @@ const navItems = [
   { href: localizedPath('/projects/', locale), label: t('nav.projects') },
   { href: localizedPath('/about/', locale), label: t('nav.about') },
   { href: localizedPath('/cv/', locale), label: t('nav.cv') },
-  { href: localizedPath('/contact/', locale), label: t('nav.contact') },
 ];
+const contactHref = localizedPath('/contact/', locale);
 
 const current = Astro.url.pathname.replace(/\/$/, '') || '/';
 const isCurrent = (href: string) => {
@@ -43,20 +47,24 @@ const isCurrent = (href: string) => {
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <meta name="theme-color" content="#fbfaf7" />
+    <meta name="theme-color" content="#050608" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     {ogImage && <meta property="og:image" content={ogImage} />}
   </head>
-  <body>
+  <body style={themeStyle(theme)}>
     <a class="skip-link" href="#main">{t('nav.skip')}</a>
 
     <header class="site-header">
       <div class="container site-header__inner">
         <a class="brand" href={localizedPath('/', locale)}>
-          <span class="brand__mark" aria-hidden="true"></span>
+          <svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true">
+            <rect width="32" height="32" rx="8" fill="#fff" />
+            <path d="M5 18c4-4 7-4 11 0s7 4 11 0v9H5z" fill="#07080b" />
+            <path d="M5 18c4-4 7-4 11 0s7 4 11 0" fill="none" stroke="var(--accent)" stroke-width="2" />
+          </svg>
           {profile.name}
         </a>
         <nav aria-label="Main">
@@ -70,14 +78,21 @@ const isCurrent = (href: string) => {
                 </li>
               ))
             }
+            <li>
+              <a class="nav-cta" href={contactHref} aria-current={isCurrent(contactHref) ? 'page' : undefined}>
+                {t('nav.contact')}
+              </a>
+            </li>
           </ul>
         </nav>
       </div>
     </header>
 
     <p class="first-version" role="note">
-      <span class="container">{t('banner.firstVersion')}</span>
+      <span class="container"><span class="first-version__dot" aria-hidden="true"></span>{t('banner.firstVersion')}</span>
     </p>
+
+    <slot name="hero" />
 
     <main id="main" class="container">
       <slot />
@@ -98,11 +113,11 @@ const isCurrent = (href: string) => {
     position: absolute;
     left: 0.5rem;
     top: -3rem;
-    padding: 0.5rem 0.75rem;
-    background: var(--color-accent);
-    color: #fff;
-    border-radius: var(--radius);
-    z-index: 10;
+    padding: 0.5rem 0.9rem;
+    background: #fff;
+    color: #07080b;
+    border-radius: 999px;
+    z-index: 20;
   }
 
   .skip-link:focus {
@@ -110,8 +125,13 @@ const isCurrent = (href: string) => {
   }
 
   .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: rgb(5 6 8 / 0.72);
+    backdrop-filter: saturate(140%) blur(14px);
+    -webkit-backdrop-filter: saturate(140%) blur(14px);
     border-bottom: 1px solid var(--color-border);
-    background: var(--color-surface);
   }
 
   .site-header__inner {
@@ -126,25 +146,28 @@ const isCurrent = (href: string) => {
   .brand {
     display: inline-flex;
     align-items: center;
-    gap: 0.55rem;
-    font-weight: 700;
-    font-size: 1.1rem;
+    gap: 0.65rem;
+    font-weight: 600;
+    font-size: 1.02rem;
+    letter-spacing: -0.01em;
     color: var(--color-text);
     text-decoration: none;
   }
 
-  /* Small horizon mark shared in spirit with Horizonte's logo. */
+  .brand:hover {
+    color: var(--color-text);
+  }
+
   .brand__mark {
-    width: 1.1rem;
-    height: 1.1rem;
-    border-radius: 50%;
-    background: linear-gradient(to bottom, var(--color-accent) 0 52%, var(--color-text) 52% 60%, #c9dde3 60%);
+    width: 1.75rem;
+    height: 1.75rem;
   }
 
   .nav-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.25rem 1rem;
+    align-items: center;
+    gap: 0.25rem clamp(0.9rem, 3vw, 2.2rem);
     list-style: none;
     margin: 0;
     padding: 0;
@@ -152,45 +175,73 @@ const isCurrent = (href: string) => {
 
   .nav-list a {
     color: var(--color-muted);
+    font-size: 0.95rem;
     text-decoration: none;
     padding: 0.3rem 0;
     display: inline-block;
+    transition: color 0.2s;
   }
 
   .nav-list a:hover,
   .nav-list a[aria-current='page'] {
-    color: var(--color-accent-strong);
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
+    color: var(--color-text);
+  }
+
+  .nav-list a:not(.nav-cta)[aria-current='page'] {
+    box-shadow: 0 2px 0 var(--accent);
+  }
+
+  .nav-list .nav-cta {
+    padding: 0.4rem 1.1rem;
+    border-radius: 999px;
+    background: #fff;
+    color: #07080b;
+    font-weight: 500;
+  }
+
+  .nav-list .nav-cta:hover,
+  .nav-list .nav-cta[aria-current='page'] {
+    color: #07080b;
+    background: #e7ebf3;
   }
 
   .first-version {
     margin: 0;
-    background: var(--color-pending-bg);
+    color: var(--color-faint);
+    font-size: 0.8rem;
+    padding-block: 0.55rem;
     border-bottom: 1px solid var(--color-border);
-    color: var(--color-pending-text);
-    font-size: 0.88rem;
-    padding-block: 0.4rem;
   }
 
   .first-version .container {
     display: block;
   }
 
+  .first-version__dot {
+    display: inline-block;
+    width: 0.45rem;
+    height: 0.45rem;
+    margin-right: 0.55rem;
+    border-radius: 50%;
+    background: var(--color-pending-text);
+    vertical-align: 0.08em;
+  }
+
   main {
-    padding-block: 2.5rem 4rem;
+    padding-block: 3rem 5rem;
   }
 
   .site-footer {
     border-top: 1px solid var(--color-border);
-    font-size: 0.92rem;
+    font-size: 0.88rem;
+    color: var(--color-muted);
   }
 
   .site-footer__inner {
     display: flex;
     flex-wrap: wrap;
     gap: 0.25rem 2rem;
-    padding-block: 1.25rem;
+    padding-block: 1.75rem;
   }
 
   .site-footer p {
