@@ -13,6 +13,10 @@ image:
   credit: Messages copied verbatim from a conversation with the live demo, 18 October 2026.
 demoUrl: https://car-rental-chatbot.onrender.com
 demoLabel: Try Chatbot
+usage:
+  - "Your first message must say where AND when, together: a city and a date or day, e.g. “Valencia from 6 to 8 November”. The bot needs both to search the fleet."
+  - "Then ask for a recommendation, or to book one of the cars it found."
+  - "To search another city or other dates, send “reset” first; the agent then searches the fleet again."
 demoNote: Free server — if nobody has used it recently, the first answer can take up to a minute while it wakes up.
 transcript:
   caption: Real conversation recorded from the live demo on 18 October 2026 (unedited). The fleet and the booking are fictional.

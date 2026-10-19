@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 560" role="img" aria-labelledby="t d" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif">
+  <title id="t">Weather data warehouse architecture</title>
+  <desc id="d">Every hour a Cloudflare Cron Trigger starts a GitHub Actions workflow, with GitHub's own schedule as a fallback. The workflow downloads Open-Meteo forecasts for 52 capitals and AEMET observations from about 850 stations into a bronze layer of raw files, builds a silver layer of cleaned daily Parquet tables and a gold layer of tables for apps and machine learning with DuckDB SQL, and uploads them to a public Hugging Face Storage Bucket. Apps, notebooks and this portfolio read the files over HTTPS.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#55606c"/>
+    </marker>
+    <style>
+      .box { fill: #ffffff; stroke: #c9cdd3; stroke-width: 1.5; }
+      .ext { fill: #f7f8fa; stroke: #55606c; stroke-width: 1.5; stroke-dasharray: 6 4; }
+      .bronze { fill: #f6e7d8; stroke: #a86b32; stroke-width: 1.5; }
+      .silver { fill: #eceff3; stroke: #6b7684; stroke-width: 1.5; }
+      .gold { fill: #fbf1cc; stroke: #a8860b; stroke-width: 1.5; }
+      .group { fill: none; stroke: #1f8a5b; stroke-width: 1.2; stroke-dasharray: 3 3; }
+      .h { font-size: 15px; font-weight: 700; fill: #1b2128; }
+      .s { font-size: 12.5px; fill: #55606c; }
+      .g { font-size: 13px; font-weight: 700; fill: #1f6b47; letter-spacing: 0.04em; }
+      .line { stroke: #55606c; stroke-width: 1.5; fill: none; marker-end: url(#arrow); }
+      .dash { stroke: #55606c; stroke-width: 1.5; fill: none; stroke-dasharray: 5 4; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <!-- Scheduling -->
+  <rect class="ext" x="30" y="30" width="200" height="64" rx="10"/>
+  <text class="h" x="46" y="56">Cloudflare Cron Trigger</text>
+  <text class="s" x="46" y="76">minute 25 of every hour</text>
+
+  <rect class="ext" x="30" y="112" width="200" height="56" rx="10"/>
+  <text class="h" x="46" y="136">GitHub schedule</text>
+  <text class="s" x="46" y="155">fallback, best effort</text>
+
+  <!-- Sources -->
+  <rect class="ext" x="30" y="250" width="200" height="72" rx="10"/>
+  <text class="h" x="46" y="276">Open-Meteo</text>
+  <text class="s" x="46" y="296">forecasts · 52 capitals</text>
+  <text class="s" x="46" y="312">72 h ahead · 10 variables</text>
+
+  <rect class="ext" x="30" y="342" width="200" height="72" rx="10"/>
+  <text class="h" x="46" y="368">AEMET OpenData</text>
+  <text class="s" x="46" y="388">observations · ~850 stations</text>
+  <text class="s" x="46" y="404">last 24 h each call</text>
+
+  <!-- Workflow group -->
+  <rect class="group" x="270" y="22" width="420" height="510" rx="14"/>
+  <text class="g" x="290" y="48">GITHUB ACTIONS · HOURLY WORKFLOW (DuckDB SQL)</text>
+
+  <rect class="box" x="300" y="70" width="360" height="60" rx="10"/>
+  <text class="h" x="318" y="96">Ingest</text>
+  <text class="s" x="318" y="116">download both sources · keep failures isolated</text>
+
+  <rect class="bronze" x="300" y="160" width="360" height="74" rx="10"/>
+  <text class="h" x="318" y="186">Bronze · raw</text>
+  <text class="s" x="318" y="206">gzipped JSON per source and hour, never modified</text>
+  <text class="s" x="318" y="222">→ every later layer can be rebuilt from it</text>
+
+  <rect class="silver" x="300" y="264" width="360" height="74" rx="10"/>
+  <text class="h" x="318" y="290">Silver · clean</text>
+  <text class="s" x="318" y="310">typed, deduplicated, units harmonised</text>
+  <text class="s" x="318" y="326">forecasts · observations · stations (Parquet/day)</text>
+
+  <rect class="gold" x="300" y="368" width="360" height="92" rx="10"/>
+  <text class="h" x="318" y="394">Gold · ready to use</text>
+  <text class="s" x="318" y="414">latest forecast · forecast vs observed (error by lead)</text>
+  <text class="s" x="318" y="430">training features · daily summary</text>
+  <text class="s" x="318" y="446">+ web snapshot (small JSON for browsers)</text>
+
+  <text class="s" x="300" y="500">Idempotent: each run rebuilds today and yesterday.</text>
+
+  <!-- Storage and readers -->
+  <rect class="ext" x="730" y="250" width="200" height="88" rx="10"/>
+  <text class="h" x="746" y="276">Hugging Face bucket</text>
+  <text class="s" x="746" y="296">public Parquet + JSON</text>
+  <text class="s" x="746" y="312">read over HTTPS</text>
+  <text class="s" x="746" y="328">cost €0</text>
+
+  <rect class="box" x="730" y="380" width="200" height="56" rx="10"/>
+  <text class="h" x="746" y="404">This portfolio</text>
+  <text class="s" x="746" y="423">live table in the browser</text>
+
+  <rect class="box" x="730" y="456" width="200" height="56" rx="10"/>
+  <text class="h" x="746" y="480">ML apps, notebooks</text>
+  <text class="s" x="746" y="499">future forecast models</text>
+
+  <!-- Arrows -->
+  <path class="line" d="M230 62 H270 V100 H298"/>
+  <path class="dash" d="M230 140 H262 V108 H298"/>
+  <path class="line" d="M230 286 H252 V112 H298"/>
+  <path class="line" d="M230 378 H258 V120 H298"/>
+  <path class="line" d="M480 130 V158"/>
+  <path class="line" d="M480 234 V262"/>
+  <path class="line" d="M480 338 V366"/>
+  <path class="line" d="M660 414 H700 V294 H728"/>
+  <path class="line" d="M830 338 V378"/>
+  <path class="line" d="M930 300 H946 V484 H932"/>
+</svg>

@@ -4,6 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Pending from '../../components/Pending.astro';
 import ChatReplay from '../../components/ChatReplay.astro';
 import LiquidBands from '../../components/LiquidBands.astro';
+import WarehouseLive from '../../components/WarehouseLive.astro';
 import { render } from 'astro:content';
 import { localizedPath, useTranslations, defaultLocale } from '../../i18n';
 import { getProjects, projectSlug, type Project } from '../../lib/projects';
@@ -56,15 +57,29 @@ const number = (index: number) => String(index + 1).padStart(2, '0');
         {data.repoUrl && !data.repoIsPublic && <span class="muted private">{t('projects.codePrivate')}</span>}
       </div>
       {data.demoNote && <p class="demo-note muted">{data.demoNote}</p>}
+      {
+        data.usage && (
+          <div class="usage">
+            <p class="usage__title">{t('projects.usage')}</p>
+            <ol>
+              {data.usage.map((rule) => (
+                <li>{rule}</li>
+              ))}
+            </ol>
+          </div>
+        )
+      }
     </div>
     <LiquidBands id={`${projectSlug(project)}-liquid`} panels={7} height="clamp(7rem, 14vw, 10rem)" />
   </header>
 
   <article class="project">
+    {data.liveSnapshot && <WarehouseLive url={data.liveSnapshot} />}
+
     {data.transcript && <ChatReplay {...data.transcript} title={data.title} />}
 
     {
-      data.image && !data.transcript && (
+      data.image && !data.transcript && !data.liveSnapshot && (
         <figure class="hero-figure">
           <img src={data.image.src} alt={data.image.alt} width="1200" height="550" />
           {data.image.credit && <figcaption>{data.image.credit}</figcaption>}
@@ -170,6 +185,33 @@ const number = (index: number) => String(index + 1).padStart(2, '0');
   .demo-note {
     margin: 0.8rem 0 0;
     font-size: 0.88rem;
+  }
+
+  .usage {
+    max-width: var(--reading-width);
+    margin-top: 1.5rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+    border-radius: var(--radius);
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
+  }
+
+  .usage__title {
+    margin: 0 0 0.5rem;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .usage ol {
+    margin: 0;
+    padding-left: 1.2rem;
+  }
+
+  .usage li + li {
+    margin-top: 0.35rem;
   }
 
   .hero-figure {
