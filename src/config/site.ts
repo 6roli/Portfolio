@@ -36,9 +36,9 @@ export const profile: Profile = {
   headline: null,
   intro: null,
   location: null,
-  email: null,
+  email: 'gabriel.olius@gmail.com',
   githubUser: '6roli',
-  linkedinUrl: null,
+  linkedinUrl: 'https://www.linkedin.com/in/gabriel-o-981534229/?isSelfProfile=true',
   otherLinks: [],
   cvFile: null,
 };
