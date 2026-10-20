@@ -91,7 +91,8 @@ const number = (index: number) => String(index + 1).padStart(2, '0');
     {data.transcript && <ChatReplay {...data.transcript} title={data.title} />}
 
     {
-      data.image && !data.transcript && !data.liveSnapshot && (
+      // The cover is mainly for cards and previews; skip it where the page already has a richer visual.
+      !data.transcript && !data.liveSnapshot && modules.length === 0 && (
         <figure class="hero-figure">
           <img src={data.image.src} alt={data.image.alt} width="1200" height="550" />
           {data.image.credit && <figcaption>{data.image.credit}</figcaption>}
