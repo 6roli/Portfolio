@@ -45,7 +45,10 @@ Add an `npm run verify` script that runs the type check, tests and build. Cloudf
 
 ## 4. Publish on Cloudflare
 
-1. Add a `wrangler.jsonc` (copy Horizonte's) and set `"name"` to the app name. It declares the site as static files
+1. Add a `wrangler.jsonc` (copy Horizonte's) and set `"name"` to the app name.
+   **Also add `"build": { "command": "npm run build" }`** to it: wrangler then builds before every deploy, so the
+   deployment works even if the Cloudflare import leaves "Build command" empty (it often does, and the deploy fails
+   with *"The directory specified by assets.directory does not exist: …/dist"*). It declares the site as static files
    in `dist/` — without it, Cloudflare tries to set up a server adapter and the deployment fails.
 2. Make `npm run build` run the checks (type check, tests) before building, as in Horizonte.
 3. Push the code: `git add -A && git commit -m "…" && git push -u origin main`.
