@@ -26,13 +26,12 @@ const projects = defineCollection({
     /** Accent colours of the project page and card (see src/config/themes.ts). */
     theme: z.enum(themeIds).default('aurora'),
     technologies: z.array(z.string()).default([]),
-    image: z
-      .object({
-        src: z.string().startsWith('/'),
-        alt: z.string().min(1),
-        credit: z.string().optional(),
-      })
-      .optional(),
+    /** Cover image, required so no project looks unfinished (made with scripts/cover/cover.html). */
+    image: z.object({
+      src: z.string().startsWith('/'),
+      alt: z.string().min(1),
+      credit: z.string().optional(),
+    }),
     demoUrl: z.url().optional(),
     /** Text of the demo button, e.g. "Try Chatbot". Defaults to "Open demo". */
     demoLabel: z.string().min(1).max(40).optional(),
