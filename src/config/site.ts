@@ -33,8 +33,9 @@ export interface Profile {
 
 export const profile: Profile = {
   name: 'Gabriel Olius',
-  headline: null,
-  intro: null,
+  headline: 'Data Consultant · MSc student in Telecommunications (UPC)',
+  intro:
+    "Data consultant at Datasofi, building a data warehouse and supporting the deployment of a production-tracking app for an industrial client. MSc student in Advanced Telecommunication Technologies at UPC, specialising in antennas, microwaves and photonics for communications and Earth observation.",
   location: null,
   email: 'gabriel.olius@gmail.com',
   githubUser: '6roli',
