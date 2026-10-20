@@ -2,14 +2,18 @@
 title: Weather data warehouse
 summary: An hourly data warehouse that keeps every weather forecast for Spain's 52 provincial capitals next to what was actually observed — the dataset needed to measure forecast accuracy and train prediction models.
 status: live
-featured: true
-order: 5
+featured: false
+order: 2
 areas: [architecture, software, ml]
-theme: moss
+theme: sky
+image:
+  src: /images/projects/weather-warehouse.jpg
+  alt: Screenshot of Horizonte's Weather now page, a dark map of Spain with the forecast temperature of each provincial capital and a table with 24-hour temperature curves, built from the warehouse's latest hourly run.
+  credit: Screenshot of the Horizonte app, 20 October 2026. Forecasts by Open-Meteo (CC BY 4.0); observations, Fuente AEMET.
 technologies: [Python, DuckDB, SQL, Parquet, GitHub Actions, Hugging Face Storage, Cloudflare Workers, pytest]
 liveSnapshot: https://huggingface.co/buckets/groli/weather-warehouse/resolve/gold/web/snapshot.json
-demoUrl: https://huggingface.co/buckets/groli/weather-warehouse
-demoLabel: Browse the data
+demoUrl: https://horizonte.gabriel-olius.workers.dev/weather/
+demoLabel: Open Weather now
 repoUrl: https://github.com/6roli/weather-warehouse
 repoIsPublic: true
 needsReview: true
@@ -35,7 +39,7 @@ limitations: >-
   The dataset is days old, not years: longer lead times and seasonal effects cannot be evaluated yet. The forecast
   time is the download hour, not the model run time. A single station may not represent a whole city. On the first
   day GitHub's scheduler skipped most hours, so forecasts from those hours are missing (observations were recovered,
-  since each AEMET download covers 24 hours); a Cloudflare Cron Trigger is being added to start runs on time.
+  since each AEMET download covers 24 hours); since 19 October a Cloudflare Cron Trigger starts every run on time.
 architecture: >-
   A GitHub Actions workflow runs every hour, started on time by a Cloudflare Cron Trigger with GitHub's own
   schedule as a fallback. DuckDB SQL builds bronze, silver and gold, and the files go to a public Hugging Face

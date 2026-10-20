@@ -51,6 +51,9 @@ export const en = {
   'projects.status.in-progress': 'In progress',
   'projects.status.repository': 'Repository',
   'projects.back': 'All projects',
+  'projects.module': 'Module',
+  'projects.modules': 'Modules',
+  'projects.modulesEyebrow': 'Inside this project',
 
   'about.eyebrow': 'Profile',
   'about.title': 'About',

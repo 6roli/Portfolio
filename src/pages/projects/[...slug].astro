@@ -3,15 +3,17 @@ import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Pending from '../../components/Pending.astro';
 import ChatReplay from '../../components/ChatReplay.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
 import LiquidBands from '../../components/LiquidBands.astro';
 import WarehouseLive from '../../components/WarehouseLive.astro';
 import { render } from 'astro:content';
 import { localizedPath, useTranslations, defaultLocale } from '../../i18n';
-import { getProjects, projectSlug, type Project } from '../../lib/projects';
+import { getAllProjects, getModules, parentSlug, projectSlug, type Project } from '../../lib/projects';
 import type { UiKey } from '../../i18n/en';
 
 export const getStaticPaths = (async () => {
-  const projects = await getProjects(defaultLocale);
+  // Includes modules: their slug has a slash (horizonte/weather-warehouse), hence [...slug].
+  const projects = await getAllProjects(defaultLocale);
   return projects.map((project) => ({ params: { slug: projectSlug(project) }, props: { project } }));
 }) satisfies GetStaticPaths;
 
@@ -25,6 +27,13 @@ const t = useTranslations(Astro.currentLocale);
 // Optional free-form Markdown below the front matter (e.g. code walkthrough).
 const { Content } = await render(project);
 const hasBody = Boolean(project.body?.trim());
+
+// A module links back to its parent; a parent lists its modules.
+const parent = parentSlug(project);
+const parentProject = parent ? (await getAllProjects(Astro.currentLocale)).find((p) => projectSlug(p) === parent) : null;
+const modules = await getModules(projectSlug(project), Astro.currentLocale);
+const backHref = localizedPath(parent ? `/projects/${parent}/` : '/projects/', Astro.currentLocale);
+const backLabel = parentProject ? parentProject.data.title : t('projects.back');
 
 // Fixed order so every project page answers the same questions.
 const sections: { key: keyof typeof data; label: UiKey }[] = [
@@ -41,8 +50,11 @@ const number = (index: number) => String(index + 1).padStart(2, '0');
 <BaseLayout title={data.title} description={data.summary} image={data.image?.src} theme={data.theme}>
   <header class="project-hero" slot="hero">
     <div class="container project-hero__inner">
-      <p class="back"><a href={localizedPath('/projects/', Astro.currentLocale)}>← {t('projects.back')}</a></p>
-      <p class="eyebrow">{t(`projects.status.${data.status}`)}</p>
+      <p class="back"><a href={backHref}>← {backLabel}</a></p>
+      <p class="eyebrow">
+        {parentProject && `${parentProject.data.title} · ${t('projects.module')} · `}
+        {t(`projects.status.${data.status}`)}
+      </p>
       <h1>{data.title}</h1>
       <p class="lead">{data.summary}</p>
       <div class="actions">
@@ -70,7 +82,7 @@ const number = (index: number) => String(index + 1).padStart(2, '0');
         )
       }
     </div>
-    <LiquidBands id={`${projectSlug(project)}-liquid`} panels={7} height="clamp(7rem, 14vw, 10rem)" />
+    <LiquidBands id={`${projectSlug(project).replaceAll('/', '-')}-liquid`} panels={7} height="clamp(7rem, 14vw, 10rem)" />
   </header>
 
   <article class="project">
@@ -79,11 +91,26 @@ const number = (index: number) => String(index + 1).padStart(2, '0');
     {data.transcript && <ChatReplay {...data.transcript} title={data.title} />}
 
     {
-      data.image && !data.transcript && !data.liveSnapshot && (
+      // The cover is mainly for cards and previews; skip it where the page already has a richer visual.
+      !data.transcript && !data.liveSnapshot && modules.length === 0 && (
         <figure class="hero-figure">
           <img src={data.image.src} alt={data.image.alt} width="1200" height="550" />
           {data.image.credit && <figcaption>{data.image.credit}</figcaption>}
         </figure>
+      )
+    }
+
+    {
+      modules.length > 0 && (
+        <section class="modules" aria-labelledby="modules-title">
+          <p class="eyebrow">{t('projects.modulesEyebrow')}</p>
+          <h2 id="modules-title">{t('projects.modules')}</h2>
+          <div class="grid">
+            {modules.map((module) => (
+              <ProjectCard project={module} />
+            ))}
+          </div>
+        </section>
       )
     }
 
@@ -212,6 +239,14 @@ const number = (index: number) => String(index + 1).padStart(2, '0');
 
   .usage li + li {
     margin-top: 0.35rem;
+  }
+
+  .modules {
+    margin-top: 3rem;
+  }
+
+  .modules h2 {
+    margin-top: 0;
   }
 
   .hero-figure {

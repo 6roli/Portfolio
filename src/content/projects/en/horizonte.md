@@ -1,43 +1,40 @@
 ---
 title: Horizonte
-summary: A viewer for recent Meteosat image sequences over Spain and the western Mediterranean, with explicit observation times, sources and limitations.
+summary: Earth observation, weather and satellites over Spain and the western Mediterranean — one project made of small modules that share data and design, from a Meteosat viewer to an hourly weather data warehouse.
 status: live
 featured: true
 order: 1
-areas: [earth-observation, software, architecture]
+areas: [earth-observation, architecture, software, ml]
 theme: sky
-technologies: [TypeScript, Vite, Leaflet, OGC WMS, Vitest, Cloudflare]
+technologies: [TypeScript, Python, Leaflet, DuckDB, OGC WMS, GitHub Actions, Cloudflare Workers, Hugging Face Storage]
 image:
-  src: /images/projects/horizonte.jpg
-  alt: Meteosat GeoColour image of the Iberian Peninsula and the western Mediterranean at 12:00 UTC on 18 October 2026, with a band of cloud over eastern Spain.
-  credit: Contains modified EUMETSAT Meteosat data 2026 (MTG-I1 FCI, GeoColour RGB, 18 Oct 2026 12:00 UTC).
+  src: /images/projects/horizonte-cover.jpg
+  alt: Screenshot of the Horizonte hub, with its two modules — a Meteosat satellite image of Spain and a live map of forecast temperatures in the 52 provincial capitals.
+  credit: Screenshot of the Horizonte app. Satellite image contains modified EUMETSAT Meteosat data 2026; forecasts by Open-Meteo (CC BY 4.0).
 demoUrl: https://horizonte.gabriel-olius.workers.dev
+demoLabel: Open Horizonte
 repoUrl: https://github.com/6roli/Horizonte
 repoIsPublic: false
-needsReview: false
+needsReview: true
 problem: >-
-  Satellite imagery of the weather over Spain is easy to find but often lacks context: which satellite and
-  product it is, when it was observed, how old it is and what the colours mean. Horizonte is the first step of
-  a wider app about weather, extreme events, the ocean and the coast, starting with a small, honest scope.
+  Weather and Earth-observation data for Spain is public but scattered: satellite images without context, forecasts
+  that are overwritten every hour, observations in another format. Horizonte brings them together as a set of small
+  tools that each answer one question well, and that can be combined later — for example to compare what a satellite
+  saw, what was forecast and what a station measured.
 data: >-
-  Image products from EUMETSAT's public EUMETView Web Map Service (WMS) for Meteosat Third Generation
-  (MTG-I1, FCI instrument, full disk every 10 minutes): the IR 10.5 µm channel and the GeoColour RGB composite.
-  These visualisations are EUMETSAT "Core" products, free to reuse under CC BY 4.0 with attribution. They are
-  coloured images for viewing, not the original numerical data needed for scientific analysis.
+  EUMETSAT Meteosat imagery (EUMETView WMS, CC BY 4.0), Open-Meteo forecasts (CC BY 4.0) and AEMET OpenData
+  observations. Every module states its sources, licences, times and limitations.
 method: >-
-  When the page opens, the browser asks EUMETView which observation times exist for each layer, picks the last
-  six hours of times common to both layers and loads the corresponding crops directly from EUMETSAT, a few at a
-  time. Every frame shows its observation time in UTC and Spanish time, and the data age. If EUMETView cannot be
-  reached, the app shows a small, clearly labelled historical sample bundled with it.
+  Each module lives in its own repository with its own tests and deployment, so one can change or fail without
+  breaking the others. They share a visual identity and exchange data through simple public files (Parquet and a
+  small JSON snapshot), which keeps them in sync without a shared server.
 results: >-
-  A public, static web app that plays the latest six hours of observations, states the source, product, observation
-  time (UTC and local) and data age, and warns when data is stale, missing or a historical sample.
+  Two modules are running: a viewer for the latest six hours of Meteosat images, and a weather data warehouse that
+  has collected forecasts and observations for the 52 provincial capitals every hour since 18 October 2026.
 limitations: >-
-  Images are reprojected, compressed visualisations, not calibrated measurements. EUMETView publishes each image
-  some 15–30 minutes after the scan, so nothing is real time. Horizonte does not issue warnings, forecasts or
-  detections; for official warnings use AEMET and Meteoalarm.
+  The modules are young and independent; combined views (for example satellite images next to forecast errors) are
+  the next step, not a feature yet. Horizonte does not issue warnings: for official warnings use AEMET and Meteoalarm.
 architecture: >-
-  Static site (Vite + TypeScript + Leaflet) served by Cloudflare, built from its own GitHub repository on every
-  push. The browser reads EUMETView's WMS time dimension and loads GetMap images directly. Interface, data access
-  and validation are separate modules with unit tests. No server, no database, no scheduled jobs.
+  Static web front ends on Cloudflare, data pipelines on GitHub Actions, and public files in a Hugging Face Storage
+  Bucket. Everything runs on free plans, with no server to maintain.
 ---

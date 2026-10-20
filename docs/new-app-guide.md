@@ -66,9 +66,21 @@ Add `<app>.example.com` as a custom domain of the new Cloudflare project (see `d
 In the Portfolio repository:
 
 1. Add the app to `apps` in `src/config/site.ts`.
-2. Add `src/content/projects/en/<app>.md` with problem, data, method, results, limitations and architecture,
-   plus a real image with its credit.
-3. Push — the portfolio redeploys by itself.
+2. Add `src/content/projects/en/<app>.md` with problem, data, method, results, limitations and architecture.
+   **Earth observation, satellites, weather forecasting and navigation are Horizonte modules**: put them in
+   `src/content/projects/en/horizonte/<module>.md`. They then appear inside the Horizonte page (at
+   `/projects/horizonte/<module>/`) instead of as separate projects, and get a card in the Horizonte hub app.
+3. **Add a cover image — required, the build fails without one.** Use the shared template so every cover looks
+   the same (1200×550, real screenshot framed on the project's colours):
+   ```bash
+   CH="/c/Program Files/Google/Chrome/Application/chrome.exe"
+   # 1) screenshot of the real app (~1000 px wide)
+   "$CH" --headless=new --hide-scrollbars --window-size=1000,900 --screenshot=scripts/cover/<app>-src.png <app URL>
+   # 2) frame it (title, label, the theme's two colours from src/config/themes.ts; pos = which part to show)
+   "$CH" --headless=new --hide-scrollbars --allow-file-access-from-files --window-size=1200,550      --screenshot=public/images/projects/<app>.jpg      "file:///C:/PORTFOLIO/portfolio/scripts/cover/cover.html?img=<app>-src.png&title=<Title>&label=<Label>&a1=%23...&a2=%23...&pos=top"
+   ```
+   Delete the `-src.png` afterwards (it is git-ignored). Covers are also used as the social preview image.
+4. Push — the portfolio redeploys by itself.
 
 ## 7. Before calling it done
 
@@ -77,4 +89,5 @@ In the Portfolio repository:
 - [ ] Loading, error and stale/no-data states tested
 - [ ] No secrets, `.env` files, personal data or large raw files committed
 - [ ] Public URL opened over HTTPS, and the link back to the portfolio works
+- [ ] Portfolio project page has a cover image made with `scripts/cover/cover.html`
 - [ ] Free-plan usage estimated (builds, external API limits)

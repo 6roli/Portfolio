@@ -6,6 +6,10 @@ featured: true
 order: 15
 areas: [ml, software]
 theme: violet
+image:
+  src: /images/projects/chordsai.jpg
+  alt: Screenshot of the ChordsAI demo, with example prompts, the message box and the two-octave on-screen piano from C4 to C6.
+  credit: Screenshot of the live demo, 20 October 2026.
 technologies: [Python, LangGraph, Groq API, Tavily, Flask, Web Audio API, pytest, Render]
 demoUrl: https://chordsai.onrender.com
 demoLabel: Try ChordsAI

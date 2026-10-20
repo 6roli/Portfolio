@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+<!-- Portfolio cover template (1200x550). Usage: docs/new-app-guide.md, section 6. -->
+<head>
+<meta charset="utf-8">
+<style>
+  /* Cover template: 1200x550. Params via URL: img, title, label, a1, a2 */
+  html, body { margin: 0; width: 1200px; height: 550px; overflow: hidden; }
+  body {
+    background:
+      radial-gradient(55% 80% at 85% 100%, var(--a2g), transparent 70%),
+      radial-gradient(40% 60% at 100% 10%, var(--a1g), transparent 70%),
+      #050608;
+    font-family: 'Inter Variable', 'Segoe UI', system-ui, sans-serif;
+    color: #f2f4f7;
+    position: relative;
+  }
+  .text { position: absolute; left: 64px; top: 70px; width: 380px; }
+  .label { font-size: 15px; letter-spacing: .14em; text-transform: uppercase; color: var(--a1t); margin: 0 0 18px; }
+  h1 { font-size: 58px; line-height: 1.02; letter-spacing: -.035em; font-weight: 500; margin: 0; }
+  .line { margin-top: 28px; width: 160px; height: 2px; background: linear-gradient(90deg, var(--a1), var(--a2), transparent); }
+  .window {
+    position: absolute; left: 470px; top: 60px; width: 800px;
+    border-radius: 16px; overflow: hidden;
+    border: 1px solid rgba(255,255,255,.14);
+    box-shadow: 0 40px 120px -30px var(--a1g2), 0 0 0 1px rgba(0,0,0,.6);
+    background: #0c0e13;
+  }
+  .bar { height: 30px; display: flex; align-items: center; gap: 7px; padding: 0 14px; background: #13161d; border-bottom: 1px solid rgba(255,255,255,.08); }
+  .bar span { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,.18); }
+  .window img { display: block; width: 100%; height: 470px; object-fit: cover; object-position: var(--pos, top); }
+</style>
+</head>
+<body>
+  <div class="text">
+    <p class="label" id="label"></p>
+    <h1 id="title"></h1>
+    <div class="line"></div>
+  </div>
+  <div class="window"><div class="bar"><span></span><span></span><span></span></div><img id="img" alt=""></div>
+<script>
+  const q = new URLSearchParams(location.search);
+  const a1 = q.get('a1') || '#7c9cff', a2 = q.get('a2') || '#a678ff';
+  const mix = (c, p) => `color-mix(in srgb, ${c} ${p}%, transparent)`;
+  const r = document.documentElement.style;
+  r.setProperty('--a1', a1); r.setProperty('--a2', a2);
+  r.setProperty('--a1g', mix(a1, 16)); r.setProperty('--a2g', mix(a2, 30)); r.setProperty('--a1g2', mix(a1, 55));
+  r.setProperty('--a1t', `color-mix(in srgb, ${a1} 60%, white)`);
+  document.getElementById('title').textContent = q.get('title') || '';
+  document.getElementById('label').textContent = q.get('label') || '';
+  document.getElementById('img').src = q.get('img');
+  r.setProperty('--pos', q.get('pos') || 'top');
+</script>
+</body>
+</html>

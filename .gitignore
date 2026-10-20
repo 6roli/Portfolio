@@ -19,3 +19,4 @@ public/cv/*.docx
 .DS_Store
 Thumbs.db
 *.log
+scripts/cover/*-src.png

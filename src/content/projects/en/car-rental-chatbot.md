@@ -9,8 +9,8 @@ theme: ember
 technologies: [Python, LangGraph, LangChain, Groq API, SQLite, Flask, pytest, Render]
 image:
   src: /images/projects/car-rental-chatbot.jpg
-  alt: Chat bubbles from the car rental chatbot. A visitor asks which car is best for a couple on a budget; the bot recommends the Ford Puma at 36.77 euros per day; the visitor asks to book it with made-up details.
-  credit: Messages copied verbatim from a conversation with the live demo, 18 October 2026.
+  alt: Screenshot of the car rental chatbot demo, with the three usage rules above the chat and the welcome message asking for a city and dates in the same message.
+  credit: Screenshot of the live demo, 20 October 2026.
 demoUrl: https://car-rental-chatbot.onrender.com
 demoLabel: Try Chatbot
 usage:

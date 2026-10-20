@@ -1,0 +1,3 @@
+# Old addresses kept working (https://developers.cloudflare.com/workers/static-assets/redirects/)
+/projects/weather-warehouse /projects/horizonte/weather-warehouse/ 301
+/projects/weather-warehouse/ /projects/horizonte/weather-warehouse/ 301
