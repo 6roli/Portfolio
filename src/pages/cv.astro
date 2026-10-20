@@ -1,74 +1,137 @@
 ---
+/**
+ * Web CV, generated from src/data/resume.json (npm run sync-cv). The "Save as PDF"
+ * button prints this page; print styles below turn it into a clean A4 document.
+ */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/PageHeader.astro';
-import Pending from '../components/Pending.astro';
 import Timeline from '../components/Timeline.astro';
-import { about } from '../config/about';
-import { profile } from '../config/site';
-import { localizedPath, useTranslations } from '../i18n';
-import { getProjects, projectSlug } from '../lib/projects';
+import { githubUrl, profile } from '../config/site';
+import { education, experience, period, resume } from '../lib/resume';
+import { useTranslations } from '../i18n';
 
-const locale = Astro.currentLocale ?? 'en';
-const t = useTranslations(locale);
-const projects = await getProjects(locale);
-
-// Technologies come from real projects only: evidence, not self-assessment.
-const technologies = [...new Set(projects.flatMap((project) => project.data.technologies))].sort((a, b) =>
-  a.localeCompare(b),
-);
+const t = useTranslations(Astro.currentLocale);
+const { basics } = resume;
+const projects = resume.projects ?? [];
 ---
 
-<BaseLayout title={t('cv.title')}>
+<BaseLayout title={t('cv.title')} description={basics.summary}>
   <PageHeader
     slot="hero"
     eyebrow={t('cv.eyebrow')}
-    title={t('cv.title')}
-    lead={`${profile.name}${profile.location ? ` · ${profile.location}` : ''}`}
-  />
-  <div class="reading">
+    title={basics.name}
+    lead={[basics.label, profile.location].filter(Boolean).join(' · ')}
+  >
+    <div class="cv-actions">
+      <button class="button" type="button" data-print>{t('cv.download')}</button>
+      {basics.email && <a class="button button--ghost" href={`mailto:${basics.email}`}>{basics.email}</a>}
+      {profile.linkedinUrl && <a class="button button--ghost" href={profile.linkedinUrl}>LinkedIn ↗</a>}
+      <a class="button button--ghost" href={githubUrl}>GitHub ↗</a>
+    </div>
+  </PageHeader>
+
+  <div class="reading cv">
+    <p class="print-only print-contact">
+      {[basics.email, 'portfolio.gabriel-olius.workers.dev', 'github.com/6roli'].filter(Boolean).join(' · ')}
+    </p>
+
+    {basics.summary && <p class="lead">{basics.summary}</p>}
+
+    <h2>{t('about.experience')}</h2>
+    <Timeline entries={experience} pendingLabel="Professional experience" />
+
+    <h2>{t('about.education')}</h2>
+    <Timeline entries={education} pendingLabel="Education" />
 
     {
-      profile.cvFile ? (
-        <p>
-          <a class="button" href={profile.cvFile} download>
-            {t('cv.download')}
-          </a>
-        </p>
-      ) : (
-        <Pending what={t('cv.noFile')} />
+      projects.length > 0 && (
+        <>
+          <h2>{t('projects.title')}</h2>
+          <ol class="entries">
+            {projects.map((project) => (
+              <li>
+                <h3>{project.url ? <a href={project.url}>{project.name}</a> : project.name}</h3>
+                {(project.description || project.startDate) && (
+                  <p class="muted">
+                    {[project.description, project.startDate && period(project)].filter(Boolean).join(' · ')}
+                  </p>
+                )}
+                {project.highlights && (
+                  <ul>
+                    {project.highlights.map((item) => (
+                      <li>{item}</li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ))}
+          </ol>
+        </>
       )
     }
 
-    <h2>{t('about.education')}</h2>
-    <Timeline entries={about.education} pendingLabel="Education" />
-
-    <h2>{t('about.experience')}</h2>
-    <Timeline entries={about.experience} pendingLabel="Professional experience" />
-
-    <h2>{t('projects.title')}</h2>
-    <ul>
-      {
-        projects.map((project) => (
-          <li>
-            <a href={localizedPath(`/projects/${projectSlug(project)}/`, locale)}>{project.data.title}</a>
-            <span class="muted"> — {project.data.summary}</span>
-          </li>
-        ))
-      }
-    </ul>
-
-    <h2>Technologies used in these projects</h2>
-    <ul class="tag-list">
-      {technologies.map((tech) => <li class="tag">{tech}</li>)}
-    </ul>
+    {
+      resume.publications && resume.publications.length > 0 && (
+        <>
+          <h2>{t('cv.publications')}</h2>
+          <ol class="entries">
+            {resume.publications.map((publication) => (
+              <li>
+                <h3>{publication.url ? <a href={publication.url}>{publication.name}</a> : publication.name}</h3>
+                <p class="muted">{[publication.publisher, publication.releaseDate].filter(Boolean).join(' · ')}</p>
+                {publication.summary && <p>{publication.summary}</p>}
+              </li>
+            ))}
+          </ol>
+        </>
+      )
+    }
 
     {
-      about.languages.length > 0 && (
+      resume.skills && resume.skills.length > 0 && (
         <>
-          <h2>Languages</h2>
-          <ul>
-            {about.languages.map((language) => (
-              <li>{language}</li>
+          <h2>{t('cv.skills')}</h2>
+          <dl class="skills">
+            {resume.skills.map((skill) => (
+              <>
+                <dt>{skill.name}</dt>
+                <dd>
+                  <ul class="tag-list">
+                    {(skill.keywords ?? []).map((keyword) => (
+                      <li class="tag">{keyword}</li>
+                    ))}
+                  </ul>
+                </dd>
+              </>
+            ))}
+          </dl>
+        </>
+      )
+    }
+
+    {
+      resume.languages && resume.languages.length > 0 && (
+        <>
+          <h2>{t('cv.languages')}</h2>
+          <ul class="plain">
+            {resume.languages.map((language) => (
+              <li>
+                <strong>{language.language}</strong> — {language.fluency}
+                {language.notes && <span class="muted"> · {language.notes}</span>}
+              </li>
+            ))}
+          </ul>
+        </>
+      )
+    }
+
+    {
+      resume.interests && resume.interests.length > 0 && (
+        <>
+          <h2>{t('about.interests')}</h2>
+          <ul class="tag-list">
+            {resume.interests.map((interest) => (
+              <li class="tag">{interest.name}</li>
             ))}
           </ul>
         </>
@@ -76,3 +139,184 @@ const technologies = [...new Set(projects.flatMap((project) => project.data.tech
     }
   </div>
 </BaseLayout>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-print]').forEach((button) => {
+    button.addEventListener('click', () => window.print());
+  });
+</script>
+
+<style>
+  .cv-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1.5rem;
+  }
+
+  .cv h2 {
+    margin-top: 2.75rem;
+  }
+
+  .entries {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .entries h3 a {
+    color: var(--color-text);
+  }
+
+  .entries p {
+    margin: 0 0 0.25rem;
+  }
+
+  .entries ul,
+  .plain {
+    margin: 0.4rem 0 0;
+    padding-left: 1.1rem;
+    color: var(--color-muted);
+  }
+
+  .plain {
+    padding-left: 0;
+    list-style: none;
+    color: var(--color-text);
+  }
+
+  .plain li + li {
+    margin-top: 0.3rem;
+  }
+
+  .skills {
+    display: grid;
+    grid-template-columns: minmax(9rem, max-content) 1fr;
+    gap: 0.7rem 1.25rem;
+    align-items: start;
+    margin: 0;
+  }
+
+  .skills dt {
+    font-weight: 500;
+    padding-top: 0.15rem;
+  }
+
+  .skills dd {
+    margin: 0;
+  }
+
+  @media (max-width: 34rem) {
+    .skills {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .print-only {
+    display: none;
+  }
+
+  /* Print / Save as PDF: light A4 document, without the site chrome. */
+  @media print {
+    @page {
+      size: A4;
+      margin: 14mm 16mm;
+    }
+
+    /* Light palette for paper: every colour on the page comes from these variables. */
+    :global(:root) {
+      /* Without this the browser paints the paper margins in the dark theme's colour. */
+      color-scheme: light;
+      --color-bg: #fff;
+      --color-surface: #fff;
+      --color-surface-2: #fff;
+      --color-text: #111;
+      --color-muted: #3a3a3a;
+      --color-faint: #666;
+      --color-border: #c8c8c8;
+      --color-border-strong: #bbb;
+      --accent-text: #111;
+    }
+
+    :global(html),
+    :global(body) {
+      background: #fff !important;
+      color: #111 !important;
+      font-size: 10.5pt;
+    }
+
+    :global(.site-header),
+    :global(.site-footer),
+    :global(.first-version),
+    :global(.skip-link),
+    .cv-actions {
+      display: none !important;
+    }
+
+    :global(.page-header) {
+      background: none !important;
+      border: 0 !important;
+    }
+
+    :global(.page-header__inner) {
+      padding: 0 !important;
+    }
+
+    :global(.page-header h1) {
+      font-size: 22pt;
+      margin: 0 0 2mm;
+      color: #111;
+    }
+
+    :global(.page-header .eyebrow) {
+      display: none;
+    }
+
+    :global(.page-header .lead),
+    .lead,
+    :global(.muted),
+    .entries ul {
+      color: #333 !important;
+    }
+
+    :global(main) {
+      padding: 0 !important;
+    }
+
+    .print-only {
+      display: block;
+      color: #333;
+      margin: 0 0 4mm;
+    }
+
+    .reading {
+      max-width: none;
+    }
+
+    .cv h2 {
+      margin-top: 6mm;
+      font-size: 13pt;
+      color: #111;
+      border-bottom: 0.5pt solid #bbb;
+      padding-bottom: 1mm;
+    }
+
+    :global(.timeline li),
+    .entries > li {
+      break-inside: avoid;
+    }
+
+    :global(.tag) {
+      border-color: #bbb !important;
+      color: #222 !important;
+      background: none !important;
+    }
+
+    a {
+      color: #111 !important;
+      text-decoration: none;
+    }
+  }
+</style>

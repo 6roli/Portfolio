@@ -24,6 +24,13 @@ const { entries, pendingLabel } = Astro.props;
             {entry.location && ` · ${entry.location}`}
           </p>
           {entry.details && <p>{entry.details}</p>}
+          {entry.highlights && entry.highlights.length > 0 && (
+            <ul class="highlights">
+              {entry.highlights.map((item) => (
+                <li>{item}</li>
+              ))}
+            </ul>
+          )}
         </li>
       ))}
     </ol>
@@ -38,8 +45,19 @@ const { entries, pendingLabel } = Astro.props;
     border-left: 2px solid var(--color-border);
   }
 
-  .timeline li {
+  .timeline > li {
     padding: 0 0 1.25rem 1rem;
+  }
+
+  .highlights {
+    margin: 0.4rem 0 0;
+    padding-left: 1.1rem;
+    color: var(--color-muted);
+    font-size: 0.97rem;
+  }
+
+  .highlights li + li {
+    margin-top: 0.25rem;
   }
 
   .timeline p {

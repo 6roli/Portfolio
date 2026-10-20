@@ -1,0 +1,247 @@
+{
+  "basics": {
+    "name": "Gabriel Olius Carando",
+    "label": "Data Consultant · MSc student in Telecommunications (UPC)",
+    "email": "gabriel.olius@gmail.com",
+    "url": "https://portfolio.gabriel-olius.workers.dev",
+    "summary": "Data consultant at Datasofi, building a data warehouse and supporting the deployment of a production-tracking app for an industrial client. MSc student in Advanced Telecommunication Technologies at UPC, specialising in antennas, microwaves and photonics for communications and Earth observation. My BSc thesis (grade 9.5/10) compared ionospheric electron content retrieved from the SMOS satellite with ground-based ionosondes. I like turning scattered data into reliable, well-documented tools — from satellite measurements to business processes.",
+    "location": {
+      "city": "Barcelona",
+      "countryCode": "ES"
+    },
+    "profiles": [
+      {
+        "network": "GitHub",
+        "username": "6roli",
+        "url": "https://github.com/6roli"
+      },
+      {
+        "network": "LinkedIn",
+        "url": "https://www.linkedin.com/in/gabriel-o-981534229/"
+      }
+    ]
+  },
+  "work": [
+    {
+      "name": "Datasofi",
+      "position": "Data Consultant",
+      "location": "Barcelona, Spain",
+      "startDate": "2025-12",
+      "summary": "Joined as an intern in December 2025 and was then hired.",
+      "highlights": [
+        "Implemented a Manufacturing Execution System (MES) in Power Apps so an industrial client could record its production.",
+        "Building a data warehouse for the same client while supporting the deployment of the production app."
+      ],
+      "keywords": [
+        "Power Apps",
+        "MES",
+        "Data warehouse"
+      ]
+    },
+    {
+      "name": "Accenture",
+      "position": "Strategy & Consulting Intern",
+      "location": "Barcelona, Spain",
+      "startDate": "2025-01",
+      "endDate": "2025-06",
+      "highlights": [
+        "Contributed to COSMOS (CaixaBank) project automating business processes via multi-agent AI.",
+        "Collaborated with the Value Realisation Office (VRO) to monitor and analyze workstream progress of current and future use cases.",
+        "Performed security tests for confidential information using Python and LangChain."
+      ]
+    }
+  ],
+  "education": [
+    {
+      "institution": "Universitat Politècnica de Catalunya (UPC)",
+      "studyType": "M.Sc.",
+      "area": "Advanced Telecommunication Technologies (MATT)",
+      "startDate": "2026-02",
+      "specialization": "Antennas, Microwaves and Photonics for Communications and Earth Observation",
+      "courses": [],
+      "endDate": "2027-06"
+    },
+    {
+      "institution": "Universitat Politècnica de Catalunya (UPC) — ETSETB, Campus Nord",
+      "studyType": "B.Sc.",
+      "area": "Telecommunication Technologies and Services Engineering",
+      "startDate": "2019",
+      "endDate": "2026-01",
+      "specialization": "Telecommunication Systems",
+      "notes": "Bachelor's thesis defended on 28 January 2026, grade 9.5/10."
+    }
+  ],
+  "projects": [
+    {
+      "name": "Regional Analysis of SMOS-Derived VTEC and Its Consistency with Ionosonde Measurements",
+      "description": "Bachelor's thesis, UPC (grade 9.5/10). Supervised by Mercè Vall-Llossera Ferran and Núria Duffo Úbeda (Signal Theory and Communications Dept.).",
+      "entity": "Universitat Politècnica de Catalunya (UPC)",
+      "type": "thesis",
+      "startDate": "2025-09",
+      "endDate": "2026-01-28",
+      "highlights": [
+        "Retrieved ionospheric VTEC from SMOS L-band full-polarimetric (L1B) data via Faraday rotation and compared it with GIRO ionosondes at six stations across low, mid and high latitudes.",
+        "Built spatio-temporal collocation (≤300 km, ±30 min) and local-time-matched maps to compare a quiet month (June 2022) with a severe geomagnetic storm (May 2024).",
+        "Found strong agreement during the storm (r = 0.93, 22 collocations) and moderate agreement in quiet conditions (r = 0.61, 92 collocations), with a bias of about +3 TECU.",
+        "Traced extreme errors at one station to L-band radio-frequency interference by inspecting brightness-temperature snapshots, and excluded it from the statistics."
+      ],
+      "keywords": [
+        "MATLAB",
+        "SMOS",
+        "Remote sensing",
+        "Ionosphere",
+        "Statistics"
+      ]
+    },
+    {
+      "name": "Horizonte",
+      "description": "Personal project: Earth observation, weather and satellites over Spain — a Meteosat viewer and a live weather page built on my own hourly weather data warehouse.",
+      "url": "https://portfolio.gabriel-olius.workers.dev/projects/horizonte/",
+      "startDate": "2026-10",
+      "highlights": [
+        "Hourly medallion data warehouse (DuckDB, Parquet, GitHub Actions) storing every forecast for 52 Spanish capitals next to AEMET observations to measure forecast accuracy.",
+        "Static web modules (TypeScript, Leaflet) reading the data directly from a public bucket, at zero running cost."
+      ],
+      "keywords": [
+        "Python",
+        "DuckDB",
+        "SQL",
+        "TypeScript",
+        "Leaflet",
+        "GitHub Actions",
+        "Cloudflare"
+      ]
+    },
+    {
+      "name": "Multi-Agent Car Rental Chatbot",
+      "description": "UPC BSc project, later rebuilt as a public demo.",
+      "entity": "Universitat Politècnica de Catalunya (UPC)",
+      "url": "https://portfolio.gabriel-olius.workers.dev/projects/car-rental-chatbot/",
+      "startDate": "2024-09",
+      "endDate": "2025-02",
+      "highlights": [
+        "Developed an AI system composed of specialized agents for recommendation, pricing, and location management using LangChain, Groq and SQLite."
+      ],
+      "keywords": [
+        "LangGraph",
+        "LangChain",
+        "Groq",
+        "SQLite",
+        "Flask"
+      ]
+    },
+    {
+      "name": "ChordsAI",
+      "description": "Personal project: a chat assistant that explains chords and plays them in the browser.",
+      "url": "https://portfolio.gabriel-olius.workers.dev/projects/chordsai/",
+      "keywords": [
+        "LangGraph",
+        "Groq",
+        "Web Audio API",
+        "Flask"
+      ]
+    }
+  ],
+  "skills": [
+    {
+      "name": "Data engineering",
+      "keywords": [
+        "Python",
+        "SQL",
+        "DuckDB",
+        "Parquet",
+        "Data warehousing",
+        "GitHub Actions"
+      ]
+    },
+    {
+      "name": "Business apps",
+      "keywords": [
+        "Power Apps",
+        "MES"
+      ]
+    },
+    {
+      "name": "Remote sensing & signal processing",
+      "keywords": [
+        "MATLAB",
+        "SMOS L1B data",
+        "Faraday rotation",
+        "Statistical validation"
+      ]
+    },
+    {
+      "name": "AI applications",
+      "keywords": [
+        "LangChain",
+        "LangGraph",
+        "Groq",
+        "Multi-agent systems"
+      ]
+    },
+    {
+      "name": "Web",
+      "keywords": [
+        "TypeScript",
+        "Astro",
+        "Leaflet",
+        "Flask"
+      ]
+    },
+    {
+      "name": "Other languages",
+      "keywords": [
+        "Java"
+      ]
+    }
+  ],
+  "languages": [
+    {
+      "language": "Spanish",
+      "fluency": "Native"
+    },
+    {
+      "language": "Catalan",
+      "fluency": "Native"
+    },
+    {
+      "language": "English",
+      "fluency": "Advanced",
+      "notes": "Lived in the UK for three years (2014–2017)."
+    }
+  ],
+  "interests": [
+    {
+      "name": "Physics of Electromagnetic waves"
+    },
+    {
+      "name": "Antennas and Propagation"
+    },
+    {
+      "name": "Microwaves"
+    },
+    {
+      "name": "Optical Communications"
+    },
+    {
+      "name": "Earth Observation"
+    },
+    {
+      "name": "Satellite Communications"
+    },
+    {
+      "name": "Signal Processing"
+    },
+    {
+      "name": "Geophysics"
+    }
+  ],
+  "publications": [
+    {
+      "name": "Vertical total electron content from SMOS TB measurements: Validation and study of geomagnetic storms",
+      "publisher": "Barcelona Expert Center (BEC) — Technical Note BEC-SMOS-ESL-L1-TN2025.01, version 1.0",
+      "releaseDate": "2025",
+      "summary": "Co-author, with V. González-Gambau, N. Duffo, L. Trenchi, A. Pignalberi, I. Corbella and A. Ruiz."
+    }
+  ]
+}

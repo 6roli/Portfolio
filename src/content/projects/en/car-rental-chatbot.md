@@ -41,7 +41,10 @@ architectureImage:
 repoUrl: https://github.com/6roli/Car_Rental_Chatbot
 repoIsPublic: true
 needsReview: true
-problem: null
+problem: >-
+  Built first as a UPC bachelor's project (2024–2025): could a small team of specialised language-model agents run
+  a car rental conversation — search by city and dates, recommend a car, take a booking — while every answer stays
+  grounded in a real inventory database instead of whatever the model imagines?
 data: >-
   A synthetic fleet of rental cars in seven Spanish cities, generated each day with availability dates from today
   onwards and stored in an in-memory SQLite database. No real companies, prices or customers are involved.

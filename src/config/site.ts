@@ -6,6 +6,8 @@
  * inventing text, so missing information is obvious on the live site.
  */
 
+import { resume, location as resumeLocation, profileUrl } from '../lib/resume';
+
 export interface Link {
   label: string;
   url: string;
@@ -31,14 +33,16 @@ export interface Profile {
   cvFile: string | null;
 }
 
+// Headline, introduction, location, email and LinkedIn come from the CV (npm run sync-cv).
 export const profile: Profile = {
   name: 'Gabriel Olius',
-  headline: null,
-  intro: null,
-  location: null,
-  email: 'gabriel.olius@gmail.com',
+  headline: resume.basics.label ?? null,
+  // First two sentences of the CV summary; the full text is on the CV page.
+  intro: resume.basics.summary?.match(/[^.!?]+[.!?]+/g)?.slice(0, 2).join('').trim() ?? null,
+  location: resumeLocation || null,
+  email: resume.basics.email ?? null,
   githubUser: '6roli',
-  linkedinUrl: 'https://www.linkedin.com/in/gabriel-o-981534229/?isSelfProfile=true',
+  linkedinUrl: profileUrl('LinkedIn'),
   otherLinks: [],
   cvFile: null,
 };

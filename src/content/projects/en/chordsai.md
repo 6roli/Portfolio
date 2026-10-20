@@ -22,7 +22,10 @@ usage:
 repoUrl: https://github.com/6roli/ChordsAI
 repoIsPublic: true
 needsReview: true
-problem: null
+problem: >-
+  Finding the chords of a song and hearing what they sound like usually means jumping between chord websites and an
+  instrument. ChordsAI explores a single chat where you ask about a chord, a note or a song and hear the answer
+  straight away — with the music theory computed exactly rather than guessed by a language model.
 data: >-
   Chord and note theory is computed in plain Python (20 chord qualities, equal temperament with A4 = 440 Hz). Song
   chords come from a Tavily web search; only chord names and the source link are shown, never lyrics.

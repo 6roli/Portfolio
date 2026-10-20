@@ -147,3 +147,14 @@ The Car rental chatbot and ChordsAI entries were written from their repositories
 - [Costs and limits](docs/costs.md)
 - [Connecting a custom domain](docs/domain.md)
 - [Adding a new app with its own repository and deployment](docs/new-app-guide.md)
+
+## Updating the CV shown on the site
+
+Personal data (headline, introduction, experience, education, contact) comes from the CV selected for the web in the
+private `cv` repository (`variants/en-web.resume.json`, JSON Resume format, editable in CV Kit). After changing it:
+
+```bash
+npm run sync-cv      # copies it to src/data/resume.json without private fields (refuses if any leak)
+npm run build        # check
+git add src/data/resume.json && git commit -m "Update CV" && git push
+```

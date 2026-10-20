@@ -65,7 +65,10 @@ export const en = {
 
   'cv.eyebrow': 'Résumé',
   'cv.title': 'Curriculum vitae',
-  'cv.download': 'Download CV (PDF)',
+  'cv.download': 'Save as PDF',
+  'cv.publications': 'Publications',
+  'cv.skills': 'Skills',
+  'cv.languages': 'Languages',
   'cv.noFile': 'The downloadable CV will be added when the file is provided.',
   'cv.web': 'Web version',
 

@@ -17,6 +17,8 @@ export interface TimelineEntry {
   period: string;
   location?: string;
   details?: string;
+  /** Bullet points, e.g. achievements in a job. */
+  highlights?: string[];
 }
 
 /** A fact from a real project that supports a claim, with a link to it. */
