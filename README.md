@@ -1,11 +1,12 @@
 # Portfolio — Gabriel Olius
 
-Personal website: profile, CV, projects and links to independent applications such as
-[Horizonte](https://github.com/6roli/Horizonte). A static site built with Astro and published on Cloudflare.
+Personal website: profile, CV, projects and links to independent applications. **Horizonte** is the umbrella project
+for everything about satellites, Earth observation, weather and navigation; its tools appear as modules inside it.
+A static site built with Astro and published on Cloudflare, with a dark "liquid" design and per-project colours.
 
 | | |
 |---|---|
-| Live site | https://portfolio.gabriel-olius.workers.dev *(final address confirmed after the first deployment)* |
+| Live site | https://portfolio.gabriel-olius.workers.dev |
 | Language | English (structure ready for Spanish) |
 | Hosting | Cloudflare (Workers static assets), Free plan, connected to this repository |
 | Monthly cost | €0 |
@@ -14,28 +15,35 @@ Personal website: profile, CV, projects and links to independent applications su
 
 | Technology | Runs where | Why it is needed |
 |---|---|---|
-| **Astro** | Your computer and Cloudflare's build server | Turns the pages and Markdown project files into plain HTML. The published site ships **no JavaScript**. |
-| **CSS** (`src/styles/global.css`) | Browser | All styling, with a handful of variables for colours and fonts. No CSS framework. |
+| **Astro** | Your computer and Cloudflare's build server | Turns the pages and Markdown project files into plain HTML. Almost no JavaScript is shipped (see below). |
+| **CSS** (`src/styles/global.css`) | Browser | All styling, with a handful of variables for colours and fonts. No CSS framework. Animations (liquid bands, chat replay) are pure CSS. |
 | **TypeScript** | Build time only | Type-checks configuration and the project schema, so a missing field fails the build instead of the live site. |
 | **Node.js + npm** | Your computer and Cloudflare's build server | Installs Astro and runs the build and checks. |
 | **Cloudflare** (Workers static assets) | Cloudflare | Builds the site on every push to GitHub and serves it over HTTPS from its CDN. |
 
-Everything a visitor receives is static HTML, CSS and images: no server, database, cookies or tracking.
+Everything a visitor receives is static HTML, CSS and images, plus one small script: the weather warehouse page
+(`WarehouseLive.astro`) fetches the warehouse's public JSON snapshot from Hugging Face to show live data, sending no
+`Referer` (Hugging Face answers 404 to requests coming from `workers.dev`). No server, database, cookies or tracking.
 
 ## What is where
 
 ```
 src/
   config/site.ts        Name, headline, contact links, CV file, list of live apps
-  config/about.ts       Biography, education, experience (used by About and CV)
+  config/about.ts       Biography, education, experience, method (used by About and CV)
+  config/themes.ts      Per-project accent colours (aurora, sky, ember, violet, moss)
   content/projects/en/  One Markdown file per project
+    horizonte/          Horizonte modules (satellite viewer, weather warehouse…)
   content.config.ts     Schema every project file must satisfy
   i18n/                 Interface strings (en.ts) and helpers
-  pages/                Routes: /, /about, /cv, /projects, /projects/<slug>, /contact, 404
-  components/, layouts/ Reusable pieces of UI
+  pages/                Routes: /, /about, /cv, /projects, /projects/<slug>, /projects/<slug>/<module>, /contact, 404
+  components/           ProjectCard, ChatReplay (recorded demo conversation), WarehouseLive (live data),
+                        NeonTree (About method), LiquidBands, Timeline, Pending…
+  layouts/              BaseLayout: top bar, theme, banner
   styles/global.css     Colours and typography (same identity as the apps)
-public/                 Files copied as-is: images, favicon, robots.txt, _headers
+public/                 Files copied as-is: images (covers in images/projects/), favicon, robots.txt, _headers
 scripts/check-links.mjs Verifies every internal link and image in the build
+scripts/cover/          Cover template (1200×550) — every project needs one
 docs/                   Architecture, costs, domain, guide for new apps
 ```
 
@@ -102,6 +110,14 @@ Nothing personal is invented. Each missing field is `null` (or an empty list) an
 Create `src/content/projects/en/<slug>.md`; the page `/projects/<slug>/` is generated automatically and the
 schema in `src/content.config.ts` validates it at build time.
 
+**Satellites, Earth observation, weather forecasting and navigation are Horizonte modules**, not separate projects:
+put them in `src/content/projects/en/horizonte/<module>.md`. They are listed inside the Horizonte page and get their
+own page at `/projects/horizonte/<module>/`.
+
+**A cover image is required** (the build fails without one). Make it with `scripts/cover/cover.html` — a real
+screenshot framed on the project's colours, 1200×550 JPG in `public/images/projects/`. Steps:
+[docs/new-app-guide.md](docs/new-app-guide.md), section 6.
+
 ```markdown
 ---
 title: Flood mapping from Sentinel-1
@@ -110,12 +126,21 @@ status: in-progress            # live | in-progress | repository
 featured: true                 # shown on the home page
 order: 5                       # lower = earlier
 areas: [ml, earth-observation] # ml | software | architecture | earth-observation
+theme: sky                     # aurora | sky | ember | violet | moss (src/config/themes.ts)
 technologies: [Python, PyTorch]
-image:
+image:                         # required: the cover
   src: /images/projects/flood.jpg
   alt: Describe what the image shows.
   credit: Data source and licence.
 demoUrl: https://…
+demoLabel: Try the map         # optional, default "Open demo"
+demoNote: First load can take a minute.   # optional
+usage: ["First rule…", "Second rule…"]  # optional numbered box under the buttons
+liveSnapshot: https://…/snapshot.json   # optional, live data block (weather warehouse)
+transcript:                    # optional, a real conversation copied verbatim from the demo
+  caption: …
+  messages: [{ from: user, text: … }, { from: bot, text: … }]
+architectureImage: { src: /images/projects/x-architecture.svg, alt: … }  # optional
 repoUrl: https://github.com/6roli/…
 repoIsPublic: true
 needsReview: false
@@ -130,8 +155,8 @@ architecture: …
 
 Prefer real images, maps and results. No self-rated skill percentages.
 
-The Car rental chatbot and ChordsAI entries were written from their repositories' code structure and are marked
-`needsReview: true`; please check and complete them.
+Pages with `needsReview: true` show a notice until I confirm their text. Currently: car rental chatbot, ChordsAI,
+CV Kit, Horizonte and the weather warehouse module.
 
 ## Adding Spanish
 
